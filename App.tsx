@@ -1,4 +1,4 @@
-import { Text, View, StatusBar } from "react-native";
+import { View, StatusBar } from "react-native";
 import {
   useFonts,
   Karla_700Bold,
@@ -6,6 +6,8 @@ import {
 } from "@expo-google-fonts/karla";
 import { NativeBaseProvider } from "native-base";
 import { Loading } from "@components/Loading";
+import { THEME } from "./src/theme"
+import { SignIn } from "@screens/SignIn";
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -14,13 +16,10 @@ export default function App() {
   });
 
   return (
-    <NativeBaseProvider>
+    <NativeBaseProvider theme={THEME}>
       <View
         style={{
-          alignItems: "center",
-          justifyContent: "center",
           flex: 1,
-          backgroundColor: "blue",
         }}
       >
         <StatusBar
@@ -28,8 +27,8 @@ export default function App() {
           backgroundColor="transparent"
           translucent
         />
-        {!fontsLoaded ? (
-          <Text style={{ color: "white" }}>Hello World!</Text>
+        {fontsLoaded ? (
+          <SignIn />
         ) : (
           <Loading />
         )}
