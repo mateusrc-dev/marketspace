@@ -2,6 +2,7 @@ import { Center, Image, Text, View, VStack } from "native-base";
 import Logo from "@assets/logo.svg";
 import Marketspace from "@assets/marketspace.png";
 import { Input } from "@components/Input";
+import { Button } from "@components/Button";
 
 export function SignIn() {
   return (
@@ -30,8 +31,13 @@ export function SignIn() {
         Acesse sua conta
       </Text>
       <VStack space="4" mx="12">
-        <Input placeholder="E-mail" />
-        <Input placeholder="Senha" secureTextEntry />
+        <Input
+          placeholder="E-mail"
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
+        <Input placeholder="Senha" secure={true} mb="8" />
+        <Button title="Entrar" />
       </VStack>
     </VStack>
   );
