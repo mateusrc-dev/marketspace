@@ -2,11 +2,11 @@ import { Center, Image, ScrollView, Text, View, VStack } from "native-base";
 import Logo from "@assets/logo.svg";
 import Marketspace from "@assets/marketspace.png";
 import { Input } from "@components/Input";
-import { Button } from "@components/Button";
+import { ButtonComponent } from "@components/Button";
 
 export function SignIn() {
   return (
-    <ScrollView>
+    <ScrollView bgColor="gray.700" flex={1}>
       <VStack
         flex={1}
         bgColor="gray.600"
@@ -43,8 +43,8 @@ export function SignIn() {
             keyboardType="email-address"
             autoCapitalize="none"
           />
-          <Input placeholder="Senha" secure={true} mb="8" />
-          <Button title="Entrar" />
+          <Input placeholder="Senha" secure={true} mb="4" />
+          <ButtonComponent title="Entrar" />
         </VStack>
       </VStack>
       <VStack mx="12" mb="12" mt="12">
@@ -57,7 +57,7 @@ export function SignIn() {
         >
           Ainda não tem acesso?
         </Text>
-        <Button title="Criar uma conta" variant="light" />
+        <ButtonComponent title="Criar uma conta" variant="light" />
       </VStack>
     </ScrollView>
   );
