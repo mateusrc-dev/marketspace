@@ -13,8 +13,15 @@ import { Input } from "@components/Input";
 import { ButtonComponent } from "@components/Button";
 import Avatar from "@assets/avatar.png";
 import { PencilSimpleLine } from "phosphor-react-native";
+import { useNavigation } from "@react-navigation/native";
 
 export function SignUp() {
+  const navigation = useNavigation();
+
+  function handleGoBack() {
+    navigation.goBack();
+  }
+
   return (
     <ScrollView flex={1} bgColor="gray.600">
       <VStack>
@@ -40,6 +47,7 @@ export function SignUp() {
         <Center mb="4" w={88} h={88} position="relative" mx="auto">
           <Image
             source={Avatar}
+            defaultSource={Avatar}
             alt="avatar do usuário"
             resizeMode="contain"
             rounded="full"
@@ -83,7 +91,11 @@ export function SignUp() {
           >
             Já tem uma conta?
           </Text>
-          <ButtonComponent title="Ir para o login" variant="light" />
+          <ButtonComponent
+            title="Ir para o login"
+            variant="light"
+            onPress={handleGoBack}
+          />
         </VStack>
       </VStack>
     </ScrollView>

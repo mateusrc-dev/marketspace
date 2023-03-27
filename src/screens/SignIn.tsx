@@ -3,8 +3,16 @@ import Logo from "@assets/logo.svg";
 import Marketspace from "@assets/marketspace.png";
 import { Input } from "@components/Input";
 import { ButtonComponent } from "@components/Button";
+import { useNavigation } from "@react-navigation/native";
+import { AuthNavigatorRoutesProps } from "@routes/auth.routes";
 
 export function SignIn() {
+  const navigation = useNavigation<AuthNavigatorRoutesProps>();
+
+  function handleNewAccount() {
+    navigation.navigate("signUp");
+  }
+
   return (
     <ScrollView bgColor="gray.700" flex={1}>
       <VStack
@@ -20,6 +28,7 @@ export function SignIn() {
           </View>
           <Image
             source={Marketspace}
+            defaultSource={Marketspace}
             alt="logo marketspace"
             resizeMode="contain"
           />
@@ -57,7 +66,11 @@ export function SignIn() {
         >
           Ainda não tem acesso?
         </Text>
-        <ButtonComponent title="Criar uma conta" variant="light" />
+        <ButtonComponent
+          title="Criar uma conta"
+          variant="light"
+          onPress={handleNewAccount}
+        />
       </VStack>
     </ScrollView>
   );
