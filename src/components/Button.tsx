@@ -1,5 +1,6 @@
 import {
   Button as ButtonNativeBase,
+  HStack,
   IButtonProps,
   Text,
   View,
@@ -25,37 +26,41 @@ export function ButtonComponent({
         bgColor={variant === "blue" ? "blue.200" : "gray.500"}
         _pressed={variant === "blue" ? { bg: "blue.100" } : { bg: "gray.400" }}
       >
-        {children && <View>{children}</View>}
-        <Text
-          color={variant === "blue" ? "gray.700" : "gray.200"}
-          fontWeight="bold"
-          fontFamily="body"
-          fontSize="sm"
-          p={1}
-        >
-          {title}
-        </Text>
+        <HStack space={2} alignItems="center">
+          {children && <View>{children}</View>}
+          <Text
+            color={variant === "blue" ? "gray.700" : "gray.200"}
+            fontWeight="bold"
+            fontFamily="body"
+            fontSize="sm"
+            p={1}
+          >
+            {title}
+          </Text>
+        </HStack>
       </ButtonNativeBase>
     );
   } else {
     return (
       <ButtonNativeBase
         {...props}
-        w="full"
+        maxWidth="full"
         rounded={6}
         bgColor="gray.100"
         _pressed={{ bg: "gray.300" }}
       >
-        {children && <View>{children}</View>}
-        <Text
-          color="gray.700"
-          fontWeight="bold"
-          fontFamily="body"
-          fontSize="sm"
-          p={1}
-        >
-          {title}
-        </Text>
+        <HStack space={2} alignItems="center">
+          {children && <View>{children}</View>}
+          <Text
+            color="gray.700"
+            fontWeight="bold"
+            fontFamily="body"
+            fontSize="sm"
+            p={1}
+          >
+            {title}
+          </Text>
+        </HStack>
       </ButtonNativeBase>
     );
   }

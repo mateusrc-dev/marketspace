@@ -2,6 +2,8 @@ import {
   createBottomTabNavigator,
   BottomTabNavigationProp,
 } from "@react-navigation/bottom-tabs";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { NavigationContainer } from "@react-navigation/native";
 import { Home } from "@screens/Home";
 import { AnnouncementDetails } from "@screens/AnnouncementDetails";
 import { CreateAd } from "@screens/CreateAd";
@@ -16,6 +18,10 @@ type AppRoutes = {
   home: undefined;
   myAds: undefined;
   logout: undefined;
+};
+
+type AppRoutesTwo = {
+  Home: undefined;
   adDetails: undefined;
   createAd: undefined;
   myAdDetails: undefined;
@@ -24,40 +30,55 @@ type AppRoutes = {
 
 export type AppNavigatorRoutesProps = BottomTabNavigationProp<AppRoutes>;
 
-const { Navigator, Screen } = createBottomTabNavigator<AppRoutes>();
+const Tab = createBottomTabNavigator<AppRoutes>();
+const Stack = createNativeStackNavigator<AppRoutesTwo>();
 
-export function AppRoutes() {
+function HomeTabs() {
   const { sizes, colors } = useTheme();
   const iconSize = sizes[6];
 
   return (
-    <Navigator
+    <Tab.Navigator
       screenOptions={{
         headerShown: false,
         tabBarShowLabel: false,
         tabBarActiveTintColor: colors.gray[200],
         tabBarInactiveTintColor: colors.gray[400],
+        tabBarStyle: {
+          backgroundColor: colors.gray[700],
+          borderTopWidth: 0,
+          paddingBottom: sizes[5],
+          paddingTop: sizes[5],
+        },
       }}
     >
-      <Screen
+      <Tab.Screen
         name="home"
         component={Home}
         options={{
           tabBarIcon: ({ color, focused }) => (
-            <House weight={focused ? "bold" : "regular"} size={iconSize} color={color} />
+            <House
+              weight={focused ? "bold" : "regular"}
+              size={iconSize}
+              color={color}
+            />
           ),
         }}
       />
-      <Screen
+      <Tab.Screen
         name="myAds"
         component={MyAds}
         options={{
           tabBarIcon: ({ color, focused }) => (
-            <Tag weight={focused ? "bold" : "regular"} size={iconSize} color={color} />
+            <Tag
+              weight={focused ? "bold" : "regular"}
+              size={iconSize}
+              color={color}
+            />
           ),
         }}
       />
-      <Screen
+      <Tab.Screen
         name="logout"
         component={Logout}
         options={{
@@ -66,10 +87,24 @@ export function AppRoutes() {
           ),
         }}
       />
-      <Screen name="adDetails" component={AnnouncementDetails} />
-      <Screen name="createAd" component={CreateAd} />
-      <Screen name="myAdDetails" component={MyAdDetails} />
-      <Screen name="editAd" component={EditAd} />
-    </Navigator>
+    </Tab.Navigator>
+  );
+}
+
+export function AppRoutes() {
+  return (
+    <NavigationContainer independent={true}>
+      <Stack.Navigator
+        screenOptions={{
+          headerShown: false,
+        }}
+      >
+        <Stack.Screen name="Home" component={HomeTabs} />
+        <Stack.Screen name="adDetails" component={AnnouncementDetails} />
+        <Stack.Screen name="createAd" component={CreateAd} />
+        <Stack.Screen name="myAdDetails" component={MyAdDetails} />
+        <Stack.Screen name="editAd" component={EditAd} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
