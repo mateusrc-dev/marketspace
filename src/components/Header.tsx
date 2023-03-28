@@ -23,6 +23,7 @@ export function Header({ type = "homeHeader" }: HeaderProps) {
             source={{ uri: "https://github.com/mateusrc-dev.png" }}
             alt="imagem do usuário"
             rounded="full"
+            resizeMode="contain"
             w={10}
             h={10}
             borderWidth="2"

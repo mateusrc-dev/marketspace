@@ -5,6 +5,8 @@ import { TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { AppNavigatorRoutesProps } from "@routes/app.routes";
 import { Input } from "@components/Input";
+import { Ad } from "@components/Ad";
+import ImageTest from "@assets/imageTest.png";
 
 export function Home() {
   const navigation = useNavigation<AppNavigatorRoutesProps>();
@@ -68,6 +70,13 @@ export function Home() {
       <View px={6}>
         <Input placeholder="Buscar anúncio" search={true} />
       </View>
+      <Ad
+        userAvatar="https://github.com/mateusrc-dev.png"
+        nameAd="pudim de ovo"
+        price="100"
+        type="new"
+        imagePath={ImageTest}
+      />
     </VStack>
   );
 }
