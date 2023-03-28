@@ -1,9 +1,10 @@
-import { HStack, Text, VStack } from "native-base";
+import { HStack, Text, View, VStack } from "native-base";
 import { Header } from "@components/Header";
 import { ArrowRight, Tag } from "phosphor-react-native";
 import { TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { AppNavigatorRoutesProps } from "@routes/app.routes";
+import { Input } from "@components/Input";
 
 export function Home() {
   const navigation = useNavigation<AppNavigatorRoutesProps>();
@@ -15,7 +16,9 @@ export function Home() {
   return (
     <VStack flex={1} bgColor="gray.600">
       <Header type="homeHeader" />
-      <Text px={6}>Seus produtos anunciados para a venda</Text>
+      <Text px={6} color="gray.300" fontSize="sm" fontFamily="body">
+        Seus produtos anunciados para a venda
+      </Text>
       <HStack
         alignItems="center"
         justifyContent="space-between"
@@ -59,6 +62,12 @@ export function Home() {
           </HStack>
         </TouchableOpacity>
       </HStack>
+      <Text px={6} color="gray.300" fontSize="sm" fontFamily="body">
+        Compre produtos variados
+      </Text>
+      <View px={6}>
+        <Input placeholder="Buscar anúncio" search={true} />
+      </View>
     </VStack>
   );
 }

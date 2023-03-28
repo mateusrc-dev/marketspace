@@ -1,12 +1,20 @@
 import { HStack, Image, Text, VStack } from "native-base";
 import { Plus } from "phosphor-react-native";
 import { ButtonComponent } from "./Button";
+import { useNavigation } from "@react-navigation/native";
+import { AppNavigatorRoutesPropsTwo } from "@routes/app.routes";
 
 type HeaderProps = {
   type?: "homeHeader" | "Olá";
 };
 
 export function Header({ type = "homeHeader" }: HeaderProps) {
+  const navigation = useNavigation<AppNavigatorRoutesPropsTwo>();
+
+  function handleNavigationCreateAd() {
+    navigation.navigate("createAd")
+  }
+
   if (type === "homeHeader") {
     return (
       <HStack alignItems="center" px={6} pt={9} justifyContent="space-between">
@@ -34,7 +42,7 @@ export function Header({ type = "homeHeader" }: HeaderProps) {
             </Text>
           </VStack>
         </HStack>
-        <ButtonComponent title="Criar anúncio" variant="black">
+        <ButtonComponent title="Criar anúncio" variant="black" onPress={handleNavigationCreateAd}>
           <Plus weight="regular" color="#EDECEE" size={16} />
         </ButtonComponent>
       </HStack>
