@@ -22,6 +22,7 @@ export function Ad({
         <Image
           {...rest}
           source={{ uri: `${imagePath}` }}
+          alt="imagem do produto do usuário"
           w="153"
           h="100"
           resizeMode="contain"
@@ -30,6 +31,7 @@ export function Ad({
         <Image
           {...rest}
           source={{ uri: `${userAvatar}` }}
+          alt="avatar do usuário"
           position="absolute"
           rounded="full"
           borderWidth="1"
@@ -58,15 +60,13 @@ export function Ad({
         <Text mt="1" fontSize="sm" fontFamily="body" color="gray.200">
           {nameAd}
         </Text>
-        <HStack alignItems="flex-start" space="1">
-          <Text
-            fontSize="xs"
-            fontWeight="bold"
-            color="gray.100"
-            fontFamily="body"
-          >
-            R$
-          </Text>
+        <Text
+          fontSize="xs"
+          fontWeight="bold"
+          color="gray.100"
+          fontFamily="body"
+        >
+          R$ 
           <Text
             fontSize="md"
             fontWeight="bold"
@@ -75,7 +75,7 @@ export function Ad({
           >
             {price}
           </Text>
-        </HStack>
+        </Text>
       </VStack>
     </VStack>
   );

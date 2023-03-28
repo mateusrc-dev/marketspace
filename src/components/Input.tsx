@@ -11,9 +11,10 @@ import { useState } from "react";
 type PropsInput = IInputProps & {
   secure?: boolean;
   search?: boolean;
+  handleStateFilter?: () => void
 };
 
-export function Input({ secure = false, search = false, ...rest }: PropsInput) {
+export function Input({ secure = false, search = false, handleStateFilter = () => {}, ...rest }: PropsInput) {
   const [state, setState] = useState<boolean>(true);
 
   function handleState() {
@@ -22,6 +23,10 @@ export function Input({ secure = false, search = false, ...rest }: PropsInput) {
     } else if (state === false) {
       setState(true);
     }
+  }
+
+  function StateFilter() {
+    handleStateFilter()
   }
 
   if (secure === true) {
@@ -78,7 +83,7 @@ export function Input({ secure = false, search = false, ...rest }: PropsInput) {
           {...rest}
         />
         <HStack position="absolute" right={0}>
-          <Button onPress={handleState} bgColor="transparent">
+          <Button bgColor="transparent">
             <MagnifyingGlass color={"#1A181B"} />
           </Button>
           <View
@@ -88,7 +93,7 @@ export function Input({ secure = false, search = false, ...rest }: PropsInput) {
             h="18"
             marginY="auto"
           />
-          <Button onPress={handleState} bgColor="transparent">
+          <Button onPress={StateFilter} bgColor="transparent">
             <Sliders color={"#1A181B"} />
           </Button>
         </HStack>
