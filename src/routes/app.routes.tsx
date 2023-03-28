@@ -2,7 +2,10 @@ import {
   createBottomTabNavigator,
   BottomTabNavigationProp,
 } from "@react-navigation/bottom-tabs";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import {
+  createNativeStackNavigator,
+  NativeStackNavigationProp,
+} from "@react-navigation/native-stack";
 import { NavigationContainer } from "@react-navigation/native";
 import { Home } from "@screens/Home";
 import { AnnouncementDetails } from "@screens/AnnouncementDetails";
@@ -29,6 +32,8 @@ type AppRoutesTwo = {
 };
 
 export type AppNavigatorRoutesProps = BottomTabNavigationProp<AppRoutes>;
+export type AppNavigatorRoutesPropsTwo =
+  NativeStackNavigationProp<AppRoutesTwo>;
 
 const Tab = createBottomTabNavigator<AppRoutes>();
 const Stack = createNativeStackNavigator<AppRoutesTwo>();
