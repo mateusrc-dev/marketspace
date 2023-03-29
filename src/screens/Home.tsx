@@ -22,7 +22,7 @@ import { ButtonComponent } from "@components/Button";
 
 export function Home() {
   const [conditionState, setConditionState] = useState<"new" | "used" | "">("");
-  const [groupValues, setGroupValues] = useState<string[] | undefined>()
+  const [groupValues, setGroupValues] = useState<string[] | undefined>();
   const [switchValue, setSwitchValue] = useState<boolean>(false);
   const navigation = useNavigation<AppNavigatorRoutesProps>();
   console.log(groupValues);
@@ -158,8 +158,12 @@ export function Home() {
         </HStack>
       </ScrollView>
 
-      <Actionsheet isOpen={isOpen} onClose={onClose}>
-        <Actionsheet.Content>
+      <Actionsheet
+        isOpen={isOpen}
+        onClose={onClose}
+        accessibilityLabel="filter"
+      >
+        <Actionsheet.Content accessibilityLabel="filter">
           <VStack w="full" px={4}>
             <HStack alignItems="center" justifyContent="space-between">
               <Text
@@ -170,7 +174,9 @@ export function Home() {
               >
                 Filtrar anúncios
               </Text>
-              <X size="24" color="#9F9BA1" />
+              <TouchableOpacity onPress={onClose}>
+                <X size="24" color="#9F9BA1" />
+              </TouchableOpacity>
             </HStack>
             <Text
               color="gray.200"
@@ -240,6 +246,7 @@ export function Home() {
             </Text>
 
             <Switch
+              accessibilityLabel="accept replacement"
               height={"8"}
               width={"10"}
               size="lg"
@@ -260,39 +267,49 @@ export function Home() {
             >
               Meios de pagamento aceito
             </Text>
-            <Checkbox.Group onChange={setGroupValues} value={groupValues} accessibilityLabel="type pay">
+            <Checkbox.Group
+              onChange={setGroupValues}
+              value={groupValues}
+              accessibilityLabel="type pay"
+            >
               <HStack mb={1} space={2}>
-                <Checkbox value="boleto" />
+                <Checkbox value="boleto" accessibilityLabel="boleto" />
                 <Text fontSize="md" color="gray.200" fontFamily="body">
                   Boleto
                 </Text>
               </HStack>
               <HStack mb={1} space={2}>
-                <Checkbox value="pix" />
+                <Checkbox value="pix" accessibilityLabel="pix" />
                 <Text fontSize="md" color="gray.200" fontFamily="body">
                   Pix
                 </Text>
               </HStack>
               <HStack mb={1} space={2}>
-                <Checkbox value="dinheiro" />
+                <Checkbox value="dinheiro" accessibilityLabel="dinheiro" />
                 <Text fontSize="md" color="gray.200" fontFamily="body">
                   Dinheiro
                 </Text>
               </HStack>
               <HStack mb={1} space={2}>
-                <Checkbox value="cartão de crédito" />
+                <Checkbox
+                  value="cartão de crédito"
+                  accessibilityLabel="cartão de crédito"
+                />
                 <Text fontSize="md" color="gray.200" fontFamily="body">
                   Cartão de Crédito
                 </Text>
               </HStack>
               <HStack mb={1} space={2}>
-                <Checkbox value="depósito bancário" />
+                <Checkbox
+                  value="depósito bancário"
+                  accessibilityLabel="depósito bancário"
+                />
                 <Text fontSize="md" color="gray.200" fontFamily="body">
                   Depósito Bancário
                 </Text>
               </HStack>
             </Checkbox.Group>
-            <HStack>
+            <HStack justifyContent="space-between">
               <ButtonComponent title="Resetar filtros" variant="light" />
               <ButtonComponent title="Aplicar filtros" variant="black" />
             </HStack>
