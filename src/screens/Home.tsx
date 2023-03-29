@@ -14,7 +14,7 @@ import { Header } from "@components/Header";
 import { ArrowRight, Tag, X, XCircle } from "phosphor-react-native";
 import { TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { AppNavigatorRoutesProps } from "@routes/app.routes";
+import { AppNavigatorRoutesProps, AppNavigatorRoutesPropsTwo } from "@routes/app.routes";
 import { Input } from "@components/Input";
 import { Ad } from "@components/Ad";
 import { useState } from "react";
@@ -25,7 +25,7 @@ export function Home() {
   const [groupValues, setGroupValues] = useState<string[] | undefined>();
   const [switchValue, setSwitchValue] = useState<boolean>(false);
   const navigation = useNavigation<AppNavigatorRoutesProps>();
-  console.log(groupValues);
+  const navigationApp = useNavigation<AppNavigatorRoutesPropsTwo>();
 
   const { isOpen, onClose, onOpen } = useDisclose();
 
@@ -51,6 +51,10 @@ export function Home() {
 
   function handleSwitchValue() {
     setSwitchValue((prevState) => !prevState);
+  }
+
+  function handleNavigationAdDetails() {
+    navigationApp.navigate("adDetails");
   }
 
   return (
@@ -128,33 +132,39 @@ export function Home() {
       </View>
       <ScrollView>
         <HStack px={6} flexWrap={"wrap"} space={1.5} mt="6">
-          <Ad
-            userAvatar="https://github.com/mateusrc-dev.png"
-            nameAd="pudim de ovo"
-            price="100"
-            type="new"
-            imagePath={
-              "https://a-static.mlcdn.com.br/800x560/bicicleta-aro-29-mountain-bike-caloi-velox-freio-v-brake-21-marchas/magazineluiza/224968700/f8e8eac41c5d1b42ccac9cc345008608.jpg"
-            }
-          />
-          <Ad
-            userAvatar="https://github.com/mateusrc-dev.png"
-            nameAd="pudim de ovo"
-            price="100"
-            type="new"
-            imagePath={
-              "https://a-static.mlcdn.com.br/800x560/bicicleta-aro-29-mountain-bike-caloi-velox-freio-v-brake-21-marchas/magazineluiza/224968700/f8e8eac41c5d1b42ccac9cc345008608.jpg"
-            }
-          />
-          <Ad
-            userAvatar="https://github.com/mateusrc-dev.png"
-            nameAd="pudim de ovo"
-            price="100"
-            type="new"
-            imagePath={
-              "https://a-static.mlcdn.com.br/800x560/bicicleta-aro-29-mountain-bike-caloi-velox-freio-v-brake-21-marchas/magazineluiza/224968700/f8e8eac41c5d1b42ccac9cc345008608.jpg"
-            }
-          />
+          <TouchableOpacity onPress={handleNavigationAdDetails}>
+            <Ad
+              userAvatar="https://github.com/mateusrc-dev.png"
+              nameAd="pudim de ovo"
+              price="100"
+              type="new"
+              imagePath={
+                "https://a-static.mlcdn.com.br/800x560/bicicleta-aro-29-mountain-bike-caloi-velox-freio-v-brake-21-marchas/magazineluiza/224968700/f8e8eac41c5d1b42ccac9cc345008608.jpg"
+              }
+            />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleNavigationAdDetails}>
+            <Ad
+              userAvatar="https://github.com/mateusrc-dev.png"
+              nameAd="pudim de ovo"
+              price="100"
+              type="new"
+              imagePath={
+                "https://a-static.mlcdn.com.br/800x560/bicicleta-aro-29-mountain-bike-caloi-velox-freio-v-brake-21-marchas/magazineluiza/224968700/f8e8eac41c5d1b42ccac9cc345008608.jpg"
+              }
+            />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleNavigationAdDetails}>
+            <Ad
+              userAvatar="https://github.com/mateusrc-dev.png"
+              nameAd="pudim de ovo"
+              price="100"
+              type="new"
+              imagePath={
+                "https://a-static.mlcdn.com.br/800x560/bicicleta-aro-29-mountain-bike-caloi-velox-freio-v-brake-21-marchas/magazineluiza/224968700/f8e8eac41c5d1b42ccac9cc345008608.jpg"
+              }
+            />
+          </TouchableOpacity>
         </HStack>
       </ScrollView>
 
