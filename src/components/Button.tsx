@@ -21,7 +21,7 @@ export function ButtonComponent({
     return (
       <ButtonNativeBase
         {...props}
-        w="full"
+        maxWidth="full"
         rounded={6}
         bgColor={variant === "blue" ? "blue.200" : "gray.500"}
         _pressed={variant === "blue" ? { bg: "blue.100" } : { bg: "gray.400" }}

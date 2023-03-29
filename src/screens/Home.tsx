@@ -1,4 +1,15 @@
-import { HStack, Text, View, VStack } from "native-base";
+import {
+  Actionsheet,
+  Box,
+  Checkbox,
+  HStack,
+  ScrollView,
+  Text,
+  useDisclose,
+  View,
+  VStack,
+  Switch,
+} from "native-base";
 import { Header } from "@components/Header";
 import { ArrowRight, Tag, X, XCircle } from "phosphor-react-native";
 import { TouchableOpacity } from "react-native";
@@ -6,41 +17,40 @@ import { useNavigation } from "@react-navigation/native";
 import { AppNavigatorRoutesProps } from "@routes/app.routes";
 import { Input } from "@components/Input";
 import { Ad } from "@components/Ad";
-import ImageTest from "@assets/imageTest.png";
 import { useState } from "react";
+import { ButtonComponent } from "@components/Button";
 
 export function Home() {
-  const [state, setState] = useState<boolean>(false);
   const [conditionState, setConditionState] = useState<"new" | "used" | "">("");
+  const [groupValues, setGroupValues] = useState<string[] | undefined>()
+  const [switchValue, setSwitchValue] = useState<boolean>(false);
   const navigation = useNavigation<AppNavigatorRoutesProps>();
-  console.log(state);
+  console.log(groupValues);
+
+  const { isOpen, onClose, onOpen } = useDisclose();
 
   function handleNavigationMyAds() {
     navigation.navigate("myAds");
   }
 
-  function handleStateFilter() {
-    if (state === true) {
-      setState(false);
-    } else if (state === false) {
-      setState(true);
-    }
-  }
-
   function handleConditionNew() {
     if (conditionState === "new") {
-      setConditionState("")
+      setConditionState("");
     } else {
-    setConditionState("new");
-  }
+      setConditionState("new");
+    }
   }
 
   function handleConditionUsed() {
     if (conditionState === "used") {
-      setConditionState("")
+      setConditionState("");
     } else {
-    setConditionState("used");
+      setConditionState("used");
+    }
   }
+
+  function handleSwitchValue() {
+    setSwitchValue((prevState) => !prevState);
   }
 
   return (
@@ -113,171 +123,182 @@ export function Home() {
         <Input
           placeholder="Buscar anúncio"
           search={true}
-          handleStateFilter={handleStateFilter}
+          handleStateFilter={onOpen}
         />
       </View>
-      <HStack px={6} flexWrap={"wrap"} space="2" mt="6">
-        <Ad
-          userAvatar="https://github.com/mateusrc-dev.png"
-          nameAd="pudim de ovo"
-          price="100"
-          type="new"
-          imagePath={ImageTest}
-        />
-        <Ad
-          userAvatar="https://github.com/mateusrc-dev.png"
-          nameAd="pudim de ovo"
-          price="100"
-          type="new"
-          imagePath={ImageTest}
-        />
-        <Ad
-          userAvatar="https://github.com/mateusrc-dev.png"
-          nameAd="pudim de ovo"
-          price="100"
-          type="new"
-          imagePath={ImageTest}
-        />
-        <Ad
-          userAvatar="https://github.com/mateusrc-dev.png"
-          nameAd="pudim de ovo"
-          price="100"
-          type="new"
-          imagePath={ImageTest}
-        />
-        <Ad
-          userAvatar="https://github.com/mateusrc-dev.png"
-          nameAd="pudim de ovo"
-          price="100"
-          type="new"
-          imagePath={ImageTest}
-        />
-        <Ad
-          userAvatar="https://github.com/mateusrc-dev.png"
-          nameAd="pudim de ovo"
-          price="100"
-          type="new"
-          imagePath={ImageTest}
-        />
-        <Ad
-          userAvatar="https://github.com/mateusrc-dev.png"
-          nameAd="pudim de ovo"
-          price="100"
-          type="new"
-          imagePath={ImageTest}
-        />
-        <Ad
-          userAvatar="https://github.com/mateusrc-dev.png"
-          nameAd="pudim de ovo"
-          price="100"
-          type="new"
-          imagePath={ImageTest}
-        />
-        <Ad
-          userAvatar="https://github.com/mateusrc-dev.png"
-          nameAd="pudim de ovo"
-          price="100"
-          type="new"
-          imagePath={ImageTest}
-        />
-        <Ad
-          userAvatar="https://github.com/mateusrc-dev.png"
-          nameAd="pudim de ovo"
-          price="100"
-          type="new"
-          imagePath={ImageTest}
-        />
-        <Ad
-          userAvatar="https://github.com/mateusrc-dev.png"
-          nameAd="pudim de ovo"
-          price="100"
-          type="new"
-          imagePath={ImageTest}
-        />
-        <Ad
-          userAvatar="https://github.com/mateusrc-dev.png"
-          nameAd="pudim de ovo"
-          price="100"
-          type="new"
-          imagePath={ImageTest}
-        />
-        <Ad
-          userAvatar="https://github.com/mateusrc-dev.png"
-          nameAd="pudim de ovo"
-          price="100"
-          type="new"
-          imagePath={ImageTest}
-        />
-        <Ad
-          userAvatar="https://github.com/mateusrc-dev.png"
-          nameAd="pudim de ovo"
-          price="100"
-          type="new"
-          imagePath={ImageTest}
-        />
-        <Ad
-          userAvatar="https://github.com/mateusrc-dev.png"
-          nameAd="pudim de ovo"
-          price="100"
-          type="new"
-          imagePath={ImageTest}
-        />
-      </HStack>
-      {state && (
-        <VStack>
-          <HStack>
-            <Text>Filtrar anúncios</Text>
-            <X />
-          </HStack>
-          <Text>Condição</Text>
-          <HStack space="2">
-            <TouchableOpacity onPress={handleConditionNew}>
-              <HStack
-                bgColor={conditionState === "new" ? "blue.200" : "gray.500"}
-                py="1.5"
-                px="4"
-                rounded="full"
-                alignItems="center"
-                space="1.5"
+      <ScrollView>
+        <HStack px={6} flexWrap={"wrap"} space={1.5} mt="6">
+          <Ad
+            userAvatar="https://github.com/mateusrc-dev.png"
+            nameAd="pudim de ovo"
+            price="100"
+            type="new"
+            imagePath={
+              "https://a-static.mlcdn.com.br/800x560/bicicleta-aro-29-mountain-bike-caloi-velox-freio-v-brake-21-marchas/magazineluiza/224968700/f8e8eac41c5d1b42ccac9cc345008608.jpg"
+            }
+          />
+          <Ad
+            userAvatar="https://github.com/mateusrc-dev.png"
+            nameAd="pudim de ovo"
+            price="100"
+            type="new"
+            imagePath={
+              "https://a-static.mlcdn.com.br/800x560/bicicleta-aro-29-mountain-bike-caloi-velox-freio-v-brake-21-marchas/magazineluiza/224968700/f8e8eac41c5d1b42ccac9cc345008608.jpg"
+            }
+          />
+          <Ad
+            userAvatar="https://github.com/mateusrc-dev.png"
+            nameAd="pudim de ovo"
+            price="100"
+            type="new"
+            imagePath={
+              "https://a-static.mlcdn.com.br/800x560/bicicleta-aro-29-mountain-bike-caloi-velox-freio-v-brake-21-marchas/magazineluiza/224968700/f8e8eac41c5d1b42ccac9cc345008608.jpg"
+            }
+          />
+        </HStack>
+      </ScrollView>
+
+      <Actionsheet isOpen={isOpen} onClose={onClose}>
+        <Actionsheet.Content>
+          <VStack w="full" px={4}>
+            <HStack alignItems="center" justifyContent="space-between">
+              <Text
+                color="gray.100"
+                fontSize="lg"
+                fontWeight="bold"
+                fontFamily="body"
               >
-                <Text
-                  color={conditionState === "new" ? "#FFFFFF" : "gray.300"}
-                  fontSize="xs"
-                  fontFamily="body"
-                  fontWeight="bold"
+                Filtrar anúncios
+              </Text>
+              <X size="24" color="#9F9BA1" />
+            </HStack>
+            <Text
+              color="gray.200"
+              fontSize="sm"
+              fontWeight="bold"
+              fontFamily="body"
+              mt={6}
+              mb={3}
+            >
+              Condição
+            </Text>
+            <HStack space="2">
+              <TouchableOpacity onPress={handleConditionNew}>
+                <HStack
+                  bgColor={conditionState === "new" ? "blue.200" : "gray.500"}
+                  py="1.5"
+                  px="4"
+                  rounded="full"
+                  alignItems="center"
+                  space="1.5"
                 >
-                  NOVO
-                </Text>
-                {conditionState === "new" && (
-                  <XCircle size={16} weight="bold" color="#EDECEE" />
-                )}
-              </HStack>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={handleConditionUsed}>
-              <HStack
-                bgColor={conditionState === "used" ? "blue.200" : "gray.500"}
-                py="1.5"
-                px="4"
-                rounded="full"
-                alignItems="center"
-                space="1.5"
-              >
-                <Text
-                  color={conditionState === "used" ? "#FFFFFF" : "gray.300"}
-                  fontSize="xs"
-                  fontFamily="body"
-                  fontWeight="bold"
+                  <Text
+                    color={conditionState === "new" ? "#FFFFFF" : "gray.300"}
+                    fontSize="xs"
+                    fontFamily="body"
+                    fontWeight="bold"
+                  >
+                    NOVO
+                  </Text>
+                  {conditionState === "new" && (
+                    <XCircle size={16} weight="fill" color="#EDECEE" />
+                  )}
+                </HStack>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleConditionUsed}>
+                <HStack
+                  bgColor={conditionState === "used" ? "blue.200" : "gray.500"}
+                  py="1.5"
+                  px="4"
+                  rounded="full"
+                  alignItems="center"
+                  space="1.5"
                 >
-                  USADO
+                  <Text
+                    color={conditionState === "used" ? "#FFFFFF" : "gray.300"}
+                    fontSize="xs"
+                    fontFamily="body"
+                    fontWeight="bold"
+                  >
+                    USADO
+                  </Text>
+                  {conditionState === "used" && (
+                    <XCircle size={16} weight="fill" color="#EDECEE" />
+                  )}
+                </HStack>
+              </TouchableOpacity>
+            </HStack>
+            <Text
+              color="gray.200"
+              fontSize="sm"
+              fontWeight="bold"
+              fontFamily="body"
+              mt={6}
+              mb={3}
+            >
+              Aceita troca?
+            </Text>
+
+            <Switch
+              height={"8"}
+              width={"10"}
+              size="lg"
+              value={switchValue}
+              onValueChange={handleSwitchValue}
+              trackColor={{ false: "#D9D8DA", true: "#647AC7" }}
+              thumbColor={switchValue ? "#F7F7F8" : "#F7F7F8"}
+              ios_backgroundColor="#3e3e3e"
+            />
+
+            <Text
+              color="gray.200"
+              fontSize="sm"
+              fontWeight="bold"
+              fontFamily="body"
+              mt={3}
+              mb={3}
+            >
+              Meios de pagamento aceito
+            </Text>
+            <Checkbox.Group onChange={setGroupValues} value={groupValues} accessibilityLabel="type pay">
+              <HStack mb={1} space={2}>
+                <Checkbox value="boleto" />
+                <Text fontSize="md" color="gray.200" fontFamily="body">
+                  Boleto
                 </Text>
-                {conditionState === "used" && (
-                  <XCircle size={16} weight="fill" color="#EDECEE"  />
-                )}
               </HStack>
-            </TouchableOpacity>
-          </HStack>
-        </VStack>
-      )}
+              <HStack mb={1} space={2}>
+                <Checkbox value="pix" />
+                <Text fontSize="md" color="gray.200" fontFamily="body">
+                  Pix
+                </Text>
+              </HStack>
+              <HStack mb={1} space={2}>
+                <Checkbox value="dinheiro" />
+                <Text fontSize="md" color="gray.200" fontFamily="body">
+                  Dinheiro
+                </Text>
+              </HStack>
+              <HStack mb={1} space={2}>
+                <Checkbox value="cartão de crédito" />
+                <Text fontSize="md" color="gray.200" fontFamily="body">
+                  Cartão de Crédito
+                </Text>
+              </HStack>
+              <HStack mb={1} space={2}>
+                <Checkbox value="depósito bancário" />
+                <Text fontSize="md" color="gray.200" fontFamily="body">
+                  Depósito Bancário
+                </Text>
+              </HStack>
+            </Checkbox.Group>
+            <HStack>
+              <ButtonComponent title="Resetar filtros" variant="light" />
+              <ButtonComponent title="Aplicar filtros" variant="black" />
+            </HStack>
+          </VStack>
+        </Actionsheet.Content>
+      </Actionsheet>
     </VStack>
   );
 }

@@ -25,10 +25,6 @@ export function Input({ secure = false, search = false, handleStateFilter = () =
     }
   }
 
-  function StateFilter() {
-    handleStateFilter()
-  }
-
   if (secure === true) {
     return (
       <View>
@@ -93,7 +89,7 @@ export function Input({ secure = false, search = false, handleStateFilter = () =
             h="18"
             marginY="auto"
           />
-          <Button onPress={StateFilter} bgColor="transparent">
+          <Button onPress={handleStateFilter} bgColor="transparent">
             <Sliders color={"#1A181B"} />
           </Button>
         </HStack>
