@@ -9,7 +9,7 @@ export function MyAds() {
   return (
     <VStack flex={1}>
       <HStack>
-        <Text fontFamily="heading">Meus anúncios</Text>
+        <Text fontFamily="heading" fontSize="lg" color="gray.100">Meus anúncios</Text>
         <Plus />
       </HStack>
 

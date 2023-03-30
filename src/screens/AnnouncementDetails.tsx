@@ -11,20 +11,58 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import * as React from "react";
 import { useState } from "react";
-import { Dimensions, TouchableOpacity } from "react-native";
-// import Carousel from "react-native-reanimated-carousel";
+import { TouchableOpacity } from "react-native";
 import { ButtonComponent } from "@components/Button";
+import AppIntroSlider from "react-native-app-intro-slider";
 
 type AdDetailsProps = IImageProps;
+
+type slideProps = {
+  item: {
+    key: string;
+    image: string;
+  };
+};
+
+const slides = [
+  {
+    key: "1",
+    image:
+      "https://blog.bikeregistrada.com.br/wp-content/uploads/2020/10/escolherotamanhodabicicleta-1.jpeg",
+  },
+  {
+    key: "2",
+    image:
+      "https://blog.bikeregistrada.com.br/wp-content/uploads/2020/10/escolherotamanhodabicicleta-1.jpeg",
+  },
+  {
+    key: "3",
+    image:
+      "https://blog.bikeregistrada.com.br/wp-content/uploads/2020/10/escolherotamanhodabicicleta-1.jpeg",
+  },
+];
 
 export function AnnouncementDetails({ ...rest }: AdDetailsProps) {
   const [type, setType] = useState();
   const [acceptExchange, setAcceptExchange] = useState<boolean>(true);
   const navigation = useNavigation();
-  const width = Dimensions.get("window").width;
 
   function handleReturnNavigation() {
     navigation.goBack();
+  }
+
+  function renderSlides({ item }: slideProps) {
+    return (
+      <Image
+        alt="imagem do item"
+        source={{ uri: `${item.image}` }}
+        width="full"
+        height="full"
+        style={{
+          resizeMode: "cover",
+        }}
+      />
+    );
   }
 
   return (
@@ -32,26 +70,25 @@ export function AnnouncementDetails({ ...rest }: AdDetailsProps) {
       <TouchableOpacity onPress={handleReturnNavigation}>
         <ArrowLeft />
       </TouchableOpacity>
-      {/*<Carousel
-        loop
-        width={width}
-        height={width / 2}
-        autoPlay={true}
-        data={[...new Array(6).keys()]}
-        scrollAnimationDuration={1000}
-        onSnapToItem={(index) => console.log("current index:", index)}
-        renderItem={({ index }) => (
-          <View
-            style={{
-              flex: 1,
-              borderWidth: 1,
-              justifyContent: "center",
-            }}
-          >
-            <Text style={{ textAlign: "center", fontSize: 30 }}>{index}</Text>
-          </View>
-        )}
-          />*/}
+      <AppIntroSlider
+        renderItem={renderSlides}
+        data={slides}
+        nextLabel=""
+        doneLabel=""
+        dotStyle={{
+          backgroundColor: "#F7F7F8",
+          opacity: 0.5,
+          width: 121,
+          height: 3,
+          marginBottom: -70,
+        }}
+        activeDotStyle={{
+          backgroundColor: "#F7F7F8",
+          width: 121,
+          height: 3,
+          marginBottom: -70,
+        }}
+      />
       <HStack>
         <Image
           {...rest}

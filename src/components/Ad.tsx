@@ -6,6 +6,7 @@ type AdProps = IImageProps & {
   type: "new" | "used";
   nameAd: string;
   price: string;
+  showAvatar?: boolean;
 };
 
 export function Ad({
@@ -14,6 +15,7 @@ export function Ad({
   userAvatar,
   nameAd,
   price,
+  showAvatar = true,
   ...rest
 }: AdProps) {
   return (
@@ -28,20 +30,22 @@ export function Ad({
           resizeMode="contain"
           rounded="6"
         />
-        <Image
-          {...rest}
-          source={{ uri: `${userAvatar}` }}
-          alt="avatar do usuário"
-          position="absolute"
-          rounded="full"
-          borderWidth="1"
-          borderColor="gray.700"
-          resizeMode="contain"
-          w={6}
-          h={6}
-          top="1"
-          left="1"
-        />
+        {showAvatar && (
+          <Image
+            {...rest}
+            source={{ uri: `${userAvatar}` }}
+            alt="avatar do usuário"
+            position="absolute"
+            rounded="full"
+            borderWidth="1"
+            borderColor="gray.700"
+            resizeMode="contain"
+            w={6}
+            h={6}
+            top="1"
+            left="1"
+          />
+        )}
         <View
           top="1"
           right="1"
@@ -66,7 +70,7 @@ export function Ad({
           color="gray.100"
           fontFamily="body"
         >
-          R$ 
+          R$
           <Text
             fontSize="md"
             fontWeight="bold"
