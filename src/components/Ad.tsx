@@ -1,4 +1,4 @@
-import { Image, Text, VStack, IImageProps, View, HStack } from "native-base";
+import { Image, Text, VStack, IImageProps, View } from "native-base";
 
 type AdProps = IImageProps & {
   imagePath: string;
@@ -7,6 +7,7 @@ type AdProps = IImageProps & {
   nameAd: string;
   price: string;
   showAvatar?: boolean;
+  isActive?: boolean;
 };
 
 export function Ad({
@@ -16,6 +17,7 @@ export function Ad({
   nameAd,
   price,
   showAvatar = true,
+  isActive = true,
   ...rest
 }: AdProps) {
   return (
@@ -27,7 +29,7 @@ export function Ad({
           alt="imagem do produto do usuário"
           w="153"
           h="100"
-          resizeMode="contain"
+          resizeMode="cover"
           rounded="6"
         />
         {showAvatar && (
@@ -39,7 +41,7 @@ export function Ad({
             rounded="full"
             borderWidth="1"
             borderColor="gray.700"
-            resizeMode="contain"
+            resizeMode="cover"
             w={6}
             h={6}
             top="1"
@@ -59,22 +61,44 @@ export function Ad({
             {type === "new" ? "NOVO" : "USADO"}
           </Text>
         </View>
+        {isActive === false && (
+          <View
+            bgColor="#000000"
+            opacity="0.5"
+            position="absolute"
+            rounded="6"
+            w="153"
+            h="100"
+          />
+        )}
+        {isActive === false && (
+          <Text
+            color="gray.700"
+            fontSize="11"
+            fontWeight="bold"
+            position="absolute"
+            bottom="2"
+            left="2"
+          >
+            ANÚNCIO DESATIVADO
+          </Text>
+        )}
       </View>
       <VStack space="0.5">
-        <Text mt="1" fontSize="sm" fontFamily="body" color="gray.200">
+        <Text mt="1" fontSize="sm" fontFamily="body" color={isActive ? "gray.200" : "gray.400"}>
           {nameAd}
         </Text>
         <Text
           fontSize="xs"
           fontWeight="bold"
-          color="gray.100"
+          color={isActive ? "gray.100" : "gray.400"}
           fontFamily="body"
         >
           R$
           <Text
             fontSize="md"
             fontWeight="bold"
-            color="gray.100"
+            color={isActive ? "gray.100" : "gray.400"}
             fontFamily="body"
           >
             {price}
