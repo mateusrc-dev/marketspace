@@ -1,6 +1,5 @@
 import {
   Actionsheet,
-  Box,
   Checkbox,
   HStack,
   ScrollView,
