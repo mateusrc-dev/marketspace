@@ -21,7 +21,7 @@ export function Ad({
   ...rest
 }: AdProps) {
   return (
-    <VStack>
+    <VStack mb="6">
       <View position="relative" w="153" h="100">
         <Image
           {...rest}

@@ -99,7 +99,7 @@ export function CreateAd() {
             Escolha até 3 imagens para mostrar o quanto o seu produto é
             incrível!
           </Text>
-          <HStack px={6} flexWrap={"wrap"} space={"1.5"} mt="4" mb="8">
+          <HStack px={6} mt="4" mb="8">
             <FlatList
               data={productImage}
               keyExtractor={(item) => item}
@@ -125,7 +125,6 @@ export function CreateAd() {
                           w="100"
                           h="100"
                           rounded="6"
-                          mr="auto"
                         >
                           <Plus size="24" color="#9F9BA1" />
                         </View>

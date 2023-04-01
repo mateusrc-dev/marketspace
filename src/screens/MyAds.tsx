@@ -62,7 +62,7 @@ export function MyAds() {
           <SelectComponent />
         </View>
       </HStack>
-      <HStack px={6} flexWrap={"wrap"} space={"1.5"} mt="5">
+      <HStack px={6} flexWrap={"wrap"} justifyContent="space-between" mt="5">
         <Ad
           userAvatar="https://github.com/mateusrc-dev.png"
           nameAd="pudim de ovo"
@@ -73,6 +73,16 @@ export function MyAds() {
           }
           showAvatar={false}
           isActive={false}
+        />
+        <Ad
+          userAvatar="https://github.com/mateusrc-dev.png"
+          nameAd="pudim de ovo"
+          price="100"
+          type="new"
+          imagePath={
+            "https://a-static.mlcdn.com.br/800x560/bicicleta-aro-29-mountain-bike-caloi-velox-freio-v-brake-21-marchas/magazineluiza/224968700/f8e8eac41c5d1b42ccac9cc345008608.jpg"
+          }
+          showAvatar={false}
         />
         <Ad
           userAvatar="https://github.com/mateusrc-dev.png"
