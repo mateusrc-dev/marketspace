@@ -4,6 +4,7 @@ import {
   View,
   Button,
   HStack,
+  Text,
 } from "native-base";
 import { Eye, EyeSlash, MagnifyingGlass, Sliders } from "phosphor-react-native";
 import { useState } from "react";
@@ -11,10 +12,17 @@ import { useState } from "react";
 type PropsInput = IInputProps & {
   secure?: boolean;
   search?: boolean;
-  handleStateFilter?: () => void
+  handleStateFilter?: () => void;
+  purchase?: boolean;
 };
 
-export function Input({ secure = false, search = false, handleStateFilter = () => {}, ...rest }: PropsInput) {
+export function Input({
+  secure = false,
+  search = false,
+  purchase = false,
+  handleStateFilter = () => {},
+  ...rest
+}: PropsInput) {
   const [state, setState] = useState<boolean>(true);
 
   function handleState() {
@@ -93,6 +101,33 @@ export function Input({ secure = false, search = false, handleStateFilter = () =
             <Sliders color={"#1A181B"} />
           </Button>
         </HStack>
+      </View>
+    );
+  } else if (purchase === true) {
+    return (
+      <View>
+        <NativeBaseInput
+          bgColor="gray.700"
+          fontSize="md"
+          borderWidth={0}
+          color="gray.100"
+          pl="12"
+          placeholderTextColor="gray.400"
+          fontFamily="body"
+          rounded={6}
+          position="relative"
+          _focus={{
+            bgColor: "gray.700",
+            borderWidth: 1,
+            borderColor: "gray.100",
+          }}
+          {...rest}
+        />
+        <View position="absolute" left="4" top="2.5">
+          <Text color="gray.100" fontSize="md" fontFamily="body" mx={6}>
+            R$
+          </Text>
+        </View>
       </View>
     );
   } else {

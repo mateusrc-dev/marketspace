@@ -148,7 +148,7 @@ export function CreateAd() {
           >
             Venda
           </Text>
-          <Input px={8} placeholder="Valor do produto" />
+          <Input purchase={true} mx={6} placeholder="Valor do produto" />
           <Text>Aceita troca?</Text>
           <Switch
             accessibilityLabel="accept replacement"
