@@ -8,6 +8,7 @@ import {
 } from "native-base";
 import { Eye, EyeSlash, MagnifyingGlass, Sliders } from "phosphor-react-native";
 import { useState } from "react";
+import { TouchableOpacity } from "react-native";
 
 type PropsInput = IInputProps & {
   secure?: boolean;
@@ -87,7 +88,7 @@ export function Input({
           {...rest}
         />
         <HStack position="absolute" right={0}>
-          <Button bgColor="transparent">
+          <Button bgColor="transparent" _pressed={{ bg: "gray.400" }}>
             <MagnifyingGlass color={"#1A181B"} />
           </Button>
           <View
@@ -97,7 +98,11 @@ export function Input({
             h="18"
             marginY="auto"
           />
-          <Button onPress={handleStateFilter} bgColor="transparent">
+          <Button
+            onPress={handleStateFilter}
+            bgColor="transparent"
+            _pressed={{ bg: "gray.400" }}
+          >
             <Sliders color={"#1A181B"} />
           </Button>
         </HStack>

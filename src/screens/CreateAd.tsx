@@ -8,8 +8,10 @@ import {
   Radio,
   Switch,
   Checkbox,
+  FlatList,
+  Button,
 } from "native-base";
-import { ArrowLeft, Plus } from "phosphor-react-native";
+import { ArrowLeft, Plus, X } from "phosphor-react-native";
 import { TouchableOpacity } from "react-native";
 import { useState } from "react";
 import { Input } from "@components/Input";
@@ -17,9 +19,11 @@ import { TextArea } from "@components/TextArea";
 import { ButtonComponent } from "@components/Button";
 import { ScrollView } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import * as ImagePicker from "expo-image-picker";
 
 export function CreateAd() {
-  const [photoIsLoading, setPhotoisLoading] = useState();
+  const [photoIsLoading, setPhotoIsLoading] = useState<boolean>(false);
+  const [productImage, setProductImage] = useState<string[]>([]);
   const [value, setValue] = useState("");
   const [groupValues, setGroupValues] = useState<string[] | undefined>();
   const [switchValue, setSwitchValue] = useState<boolean>(false);
@@ -31,6 +35,38 @@ export function CreateAd() {
 
   function handleGoBack() {
     navigation.goBack();
+  }
+
+  async function handleChangeUserPhoto() {
+    try {
+      setPhotoIsLoading(true);
+      const { assets, canceled } = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 1,
+        aspect: [4, 4],
+        allowsEditing: true,
+      });
+
+      if (canceled) {
+        return;
+      }
+
+      if (assets[0].uri) {
+        setProductImage((prevState) => [...prevState, assets[0].uri]);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setPhotoIsLoading(false);
+    }
+  }
+
+  function handleDeleteProductImage(productDelete: string) {
+    const productsWithoutProductDeleted = productImage.filter(
+      (product) => product !== productDelete
+    );
+
+    setProductImage(productsWithoutProductDeleted);
   }
 
   return (
@@ -64,38 +100,72 @@ export function CreateAd() {
             incrível!
           </Text>
           <HStack px={6} flexWrap={"wrap"} space={"1.5"} mt="4" mb="8">
-            <Image
-              source={{
-                uri: "https://a-static.mlcdn.com.br/800x560/bicicleta-aro-29-mountain-bike-caloi-velox-freio-v-brake-21-marchas/magazineluiza/224968700/f8e8eac41c5d1b42ccac9cc345008608.jpg",
-              }}
-              alt="imagem do produto"
-              w="100"
-              h="100"
-              rounded="6"
-              resizeMode="cover"
-            />
-            {photoIsLoading ? (
-              <Skeleton
-                w="100"
-                h="100"
-                rounded="6"
-                startColor="gray.300"
-                endColor="gray.400"
-              />
-            ) : (
-              <TouchableOpacity>
-                <View
-                  alignItems="center"
-                  justifyContent="center"
-                  bgColor="gray.500"
-                  w="100"
-                  h="100"
-                  rounded="6"
-                >
-                  <Plus size="24" color="#9F9BA1" />
+            <FlatList
+              data={productImage}
+              keyExtractor={(item) => item}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              ListFooterComponent={() => (
+                <View>
+                  {photoIsLoading ? (
+                    <Skeleton
+                      w="100"
+                      h="100"
+                      rounded="6"
+                      startColor="gray.300"
+                      endColor="gray.500"
+                    />
+                  ) : (
+                    productImage.length < 3 && (
+                      <TouchableOpacity onPress={handleChangeUserPhoto}>
+                        <View
+                          alignItems="center"
+                          justifyContent="center"
+                          bgColor="gray.500"
+                          w="100"
+                          h="100"
+                          rounded="6"
+                          mr="auto"
+                        >
+                          <Plus size="24" color="#9F9BA1" />
+                        </View>
+                      </TouchableOpacity>
+                    )
+                  )}
                 </View>
-              </TouchableOpacity>
-            )}
+              )}
+              renderItem={({ item }) => (
+                <View position="relative">
+                  <Image
+                    source={{
+                      uri: `${item}`,
+                    }}
+                    alt="imagem do produto"
+                    w="100"
+                    h="100"
+                    rounded="6"
+                    resizeMode="cover"
+                    mr={1.5}
+                  />
+                  <Button
+                    position="absolute"
+                    alignItems="center"
+                    h="4"
+                    w="4"
+                    bgColor="gray.200"
+                    justifyContent="center"
+                    top="1"
+                    right="2.5"
+                    rounded="full"
+                    p={0}
+                    _pressed={{ bg: "gray.400" }}
+                    onPress={() => handleDeleteProductImage(item)}
+                  >
+                    <X size="12" color="#F7F7F8" />
+                  </Button>
+                </View>
+              )}
+            />
           </HStack>
           <Text
             mb="4"
@@ -148,8 +218,16 @@ export function CreateAd() {
           >
             Venda
           </Text>
-          <Input purchase={true} mx={6} placeholder="Valor do produto" />
-          <Text>Aceita troca?</Text>
+          <Input purchase={true} mx={6} mb="4" placeholder="Valor do produto" />
+          <Text
+            px={6}
+            color="gray.200"
+            fontSize="sm"
+            fontWeight="bold"
+            fontFamily="body"
+          >
+            Aceita troca?
+          </Text>
           <Switch
             accessibilityLabel="accept replacement"
             height={"8"}
@@ -160,13 +238,14 @@ export function CreateAd() {
             trackColor={{ false: "#D9D8DA", true: "#647AC7" }}
             thumbColor={switchValue ? "#F7F7F8" : "#F7F7F8"}
             ios_backgroundColor="#3e3e3e"
+            ml={8}
           />
           <Text
+            px={6}
             color="gray.200"
             fontSize="sm"
             fontWeight="bold"
             fontFamily="body"
-            mt={3}
             mb={3}
           >
             Meios de pagamento aceito
@@ -175,6 +254,7 @@ export function CreateAd() {
             onChange={setGroupValues}
             value={groupValues}
             accessibilityLabel="type pay"
+            px={6}
           >
             <HStack mb={1} space={2}>
               <Checkbox
@@ -227,7 +307,13 @@ export function CreateAd() {
               </Text>
             </HStack>
           </Checkbox.Group>
-          <HStack justifyContent="space-between">
+          <HStack
+            justifyContent="space-between"
+            px={6}
+            py={5}
+            bgColor="gray.700"
+            mt="8"
+          >
             <ButtonComponent title="Cancelar" variant="light" />
             <ButtonComponent title="Avançar" variant="black" />
           </HStack>
