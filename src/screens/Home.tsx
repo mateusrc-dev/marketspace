@@ -13,7 +13,10 @@ import { Header } from "@components/Header";
 import { ArrowRight, Tag, X, XCircle } from "phosphor-react-native";
 import { TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { AppNavigatorRoutesProps, AppNavigatorRoutesPropsTwo } from "@routes/app.routes";
+import {
+  AppNavigatorRoutesProps,
+  AppNavigatorRoutesPropsTwo,
+} from "@routes/app.routes";
 import { Input } from "@components/Input";
 import { Ad } from "@components/Ad";
 import { useState } from "react";
@@ -293,19 +296,31 @@ export function Home() {
               accessibilityLabel="type pay"
             >
               <HStack mb={1} space={2}>
-                <Checkbox value="boleto" accessibilityLabel="boleto" />
+                <Checkbox
+                  value="boleto"
+                  accessibilityLabel="boleto"
+                  colorScheme="info"
+                />
                 <Text fontSize="md" color="gray.200" fontFamily="body">
                   Boleto
                 </Text>
               </HStack>
               <HStack mb={1} space={2}>
-                <Checkbox value="pix" accessibilityLabel="pix" />
+                <Checkbox
+                  value="pix"
+                  accessibilityLabel="pix"
+                  colorScheme="info"
+                />
                 <Text fontSize="md" color="gray.200" fontFamily="body">
                   Pix
                 </Text>
               </HStack>
               <HStack mb={1} space={2}>
-                <Checkbox value="dinheiro" accessibilityLabel="dinheiro" />
+                <Checkbox
+                  value="dinheiro"
+                  accessibilityLabel="dinheiro"
+                  colorScheme="info"
+                />
                 <Text fontSize="md" color="gray.200" fontFamily="body">
                   Dinheiro
                 </Text>
@@ -314,6 +329,7 @@ export function Home() {
                 <Checkbox
                   value="cartão de crédito"
                   accessibilityLabel="cartão de crédito"
+                  colorScheme="info"
                 />
                 <Text fontSize="md" color="gray.200" fontFamily="body">
                   Cartão de Crédito
@@ -323,6 +339,7 @@ export function Home() {
                 <Checkbox
                   value="depósito bancário"
                   accessibilityLabel="depósito bancário"
+                  colorScheme="info"
                 />
                 <Text fontSize="md" color="gray.200" fontFamily="body">
                   Depósito Bancário

@@ -132,16 +132,20 @@ export function MyAdDetails() {
               bgColor="#000000"
               alignItems="center"
               justifyContent="center"
+            />
+          )}
+          {isActive && (
+            <Text
+              color="gray.700"
+              fontWeight="bold"
+              fontFamily="body"
+              fontSize="sm"
+              position="absolute"
+              top="131"
+              left="110"
             >
-              <Text
-                color="gray.700"
-                fontWeight="bold"
-                fontFamily="body"
-                fontSize="sm"
-              >
-                ANÚNCIO DESATIVADO
-              </Text>
-            </View>
+              ANÚNCIO DESATIVADO
+            </Text>
           )}
         </View>
 
