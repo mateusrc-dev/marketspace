@@ -56,7 +56,7 @@ export function CreateAd() {
     navigation.goBack();
   }
 
-  async function handleChangeUserPhoto() {
+  async function handleChangeProductPhoto() {
     try {
       setPhotoIsLoading(true);
       const { assets, canceled } = await ImagePicker.launchImageLibraryAsync({
@@ -153,7 +153,7 @@ export function CreateAd() {
                         />
                       ) : (
                         productImage.length < 3 && (
-                          <TouchableOpacity onPress={handleChangeUserPhoto}>
+                          <TouchableOpacity onPress={handleChangeProductPhoto}>
                             <View
                               alignItems="center"
                               justifyContent="center"
