@@ -142,7 +142,7 @@ export function SignUp() {
           ) : (
             <>
               <Image
-                source={{ uri: userImage.length === 0 ? Avatar : userImage}}
+                source={userImage.length === 0 ? Avatar : { uri: userImage }}
                 defaultSource={Avatar}
                 alt="avatar do usuário"
                 resizeMode="contain"
