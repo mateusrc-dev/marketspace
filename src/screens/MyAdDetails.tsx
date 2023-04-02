@@ -43,7 +43,7 @@ export function MyAdDetails() {
   const [switchValue, setSwitchValue] = useState<boolean>(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isActive, setIsActive] = useState<ConstrainBoolean>(false);
-  const { height, width } = Dimensions.get("window");
+  const { width } = Dimensions.get("window");
   const navigation = useNavigation<AppNavigatorRoutesProps>();
   const navigationApp = useNavigation<AppNavigatorRoutesPropsTwo>();
 

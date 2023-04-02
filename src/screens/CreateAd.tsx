@@ -10,6 +10,7 @@ import {
   Checkbox,
   FlatList,
   Button,
+  useToast,
 } from "native-base";
 import {
   ArrowLeft,
@@ -30,7 +31,8 @@ import { ButtonComponent } from "@components/Button";
 import { ScrollView } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
-const { height, width } = Dimensions.get("window");
+import * as FileSystem from "expo-file-system";
+const { width } = Dimensions.get("window");
 
 export function CreateAd() {
   const [photoIsLoading, setPhotoIsLoading] = useState<boolean>(false);
@@ -40,7 +42,11 @@ export function CreateAd() {
   const [switchValue, setSwitchValue] = useState<boolean>(false);
   const [changePage, setChangePage] = useState<boolean>(false);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [title, setTitle] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
+  const [price, setPrice] = useState<string>("");
   const navigation = useNavigation();
+  const toast = useToast();
 
   function handleSwitchValue() {
     setSwitchValue((prevState) => !prevState);
@@ -65,6 +71,14 @@ export function CreateAd() {
       }
 
       if (assets[0].uri) {
+        const { size }: any = await FileSystem.getInfoAsync(assets[0].uri);
+        if (size && size / 1024 / 1024 > 5) {
+          return toast.show({
+            title: "Essa imagem é muito grande. Escolha uma imagem de até 5MB",
+            placement: "top",
+            bgColor: "red.100",
+          });
+        }
         setProductImage((prevState) => [...prevState, assets[0].uri]);
       }
     } catch (error) {
@@ -198,8 +212,20 @@ export function CreateAd() {
               >
                 Sobre o produto
               </Text>
-              <Input mx="6" mb="4" placeholder="Título do anúncio" />
-              <TextArea mx="6" mb={4} placeholder="Descrição do produto" />
+              <Input
+                mx="6"
+                mb="4"
+                placeholder="Título do anúncio"
+                onChangeText={(e) => setTitle(e)}
+                value={title}
+              />
+              <TextArea
+                mx="6"
+                mb={4}
+                placeholder="Descrição do produto"
+                onChangeText={(e: any) => setDescription(e)}
+                value={description}
+              />
               <Radio.Group
                 name="myRadioGroup"
                 accessibilityLabel="product new or used"
@@ -244,6 +270,8 @@ export function CreateAd() {
                 mx={6}
                 mb="4"
                 placeholder="Valor do produto"
+                onChangeText={(e) => setPrice(e)}
+                value={price}
               />
               <Text
                 px={6}
@@ -458,7 +486,7 @@ export function CreateAd() {
                   fontWeight="bold"
                   color="gray.100"
                 >
-                  Bicicleta
+                  {title}
                 </Text>
                 <Text
                   color="blue.200"
@@ -474,7 +502,7 @@ export function CreateAd() {
                   >
                     R$
                   </Text>
-                  120,00
+                  {price}
                 </Text>
               </HStack>
               <Text
@@ -484,10 +512,7 @@ export function CreateAd() {
                 color="gray.200"
                 fontFamily="body"
               >
-                Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                Veritatis, atque quisquam nemo unde laborum ex eveniet minima
-                praesentium? Asperiores commodi, voluptatum quos laborum error
-                quasi nam est ea dignissimos recusandae.
+                {description}
               </Text>
               <HStack mx="6" alignItems="center" space="2" mb="4">
                 <Text
