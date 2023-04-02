@@ -44,16 +44,17 @@ const SelectComponent = () => {
 export function MyAds() {
   return (
     <VStack flex={1} bgColor="gray.600">
-      <HStack alignItems="center" px="6" justifyContent="space-around" mt="9">
-        <View />
+      <HStack alignItems="center" mt="9" justifyContent="center">
+        <View position="absolute" right="6">
+          <TouchableOpacity>
+            <Plus size={24} color="#1A181B" />
+          </TouchableOpacity>
+        </View>
         <Text fontFamily="heading" fontSize="lg" color="gray.100">
           Meus anúncios
         </Text>
-        <TouchableOpacity>
-          <Plus size={24} color="#1A181B" />
-        </TouchableOpacity>
+        <View />
       </HStack>
-
       <HStack alignItems="center" px="6" justifyContent="space-between" mt="8">
         <Text color="gray.200" fontSize="sm" fontFamily="body">
           9 anúncios

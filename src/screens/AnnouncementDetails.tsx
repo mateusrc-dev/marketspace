@@ -1,4 +1,5 @@
 import {
+  FlatList,
   HStack,
   IImageProps,
   Image,
@@ -21,56 +22,24 @@ import * as React from "react";
 import { useState } from "react";
 import { TouchableOpacity } from "react-native";
 import { ButtonComponent } from "@components/Button";
-import AppIntroSlider from "react-native-app-intro-slider";
+import { Dimensions } from "react-native";
 
 type AdDetailsProps = IImageProps;
-
-type slideProps = {
-  item: {
-    key: string;
-    image: string;
-  };
-};
-
-const slides = [
-  {
-    key: "1",
-    image:
-      "https://blog.bikeregistrada.com.br/wp-content/uploads/2020/10/escolherotamanhodabicicleta-1.jpeg",
-  },
-  {
-    key: "2",
-    image:
-      "https://blog.bikeregistrada.com.br/wp-content/uploads/2020/10/escolherotamanhodabicicleta-1.jpeg",
-  },
-  {
-    key: "3",
-    image:
-      "https://blog.bikeregistrada.com.br/wp-content/uploads/2020/10/escolherotamanhodabicicleta-1.jpeg",
-  },
-];
 
 export function AnnouncementDetails({ ...rest }: AdDetailsProps) {
   const [type, setType] = useState<string>("new");
   const [acceptExchange, setAcceptExchange] = useState<boolean>(false);
+  const [productImage, setProductImage] = useState<string[]>([
+    "https://blog.bikeregistrada.com.br/wp-content/uploads/2020/10/escolherotamanhodabicicleta-1.jpeg",
+    "https://blog.bikeregistrada.com.br/wp-content/uploads/2020/10/escolherotamanhodabicicleta-1.jpeg",
+    "https://blog.bikeregistrada.com.br/wp-content/uploads/2020/10/escolherotamanhodabicicleta-1.jpeg",
+  ]);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const navigation = useNavigation();
+  const { height, width } = Dimensions.get("window");
 
   function handleReturnNavigation() {
     navigation.goBack();
-  }
-
-  function renderSlides({ item }: slideProps) {
-    return (
-      <Image
-        alt="imagem do item"
-        source={{ uri: `${item.image}` }}
-        width="full"
-        height="full"
-        style={{
-          resizeMode: "cover",
-        }}
-      />
-    );
   }
 
   return (
@@ -81,26 +50,49 @@ export function AnnouncementDetails({ ...rest }: AdDetailsProps) {
       >
         <ArrowLeft size={24} color="#1A181B" />
       </TouchableOpacity>
-      <View width="full" height="280">
-        <AppIntroSlider
-          renderItem={renderSlides}
-          data={slides}
-          nextLabel=""
-          doneLabel=""
-          dotStyle={{
-            backgroundColor: "#F7F7F8",
-            opacity: 0.5,
-            width: 121,
-            height: 3,
-            marginBottom: -70,
-          }}
-          activeDotStyle={{
-            backgroundColor: "#F7F7F8",
-            width: 121,
-            height: 3,
-            marginBottom: -70,
+      <View width="full" height="280" position="relative">
+        <FlatList
+          data={productImage}
+          keyExtractor={(item) => item}
+          renderItem={({ item }) => (
+            <Image
+              alt="imagem do item"
+              source={{ uri: `${item}` }}
+              width={width}
+              height="280"
+              resizeMode="cover"
+            />
+          )}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          pagingEnabled
+          onScroll={(e) => {
+            const x = e.nativeEvent.contentOffset.x;
+            setCurrentIndex(Number((x / width).toFixed(0)));
           }}
         />
+        <HStack
+          w="full"
+          justifyContent="center"
+          alignItems="center"
+          position="absolute"
+          bottom="0.5"
+          px={"0.5"}
+          space={"1"}
+        >
+          {productImage.map((item, index) => {
+            return (
+              <View
+                flex={1}
+                minHeight="1"
+                maxHeight="1"
+                rounded="full"
+                bgColor="gray.700"
+                opacity={currentIndex === index ? "0.75" : "0.5"}
+              ></View>
+            );
+          })}
+        </HStack>
       </View>
       <ScrollView>
         <HStack alignItems="center" space={"2"} mt="5" mx="6">
