@@ -49,11 +49,12 @@ const signUpSchema = yup.object({
 });
 
 export function SignUp() {
-  const navigation = useNavigation();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [photoIsLoading, setPhotoIsLoading] = useState<boolean>(false);
   const [userImage, setUserImage] = useState<string>("");
   const [userImageType, setUserImageType] = useState<string | undefined>("");
   const toast = useToast();
+  const navigation = useNavigation();
 
   const {
     control,
@@ -100,6 +101,7 @@ export function SignUp() {
     userUploadForm.append("tel", phone);
     userUploadForm.append("password", password);
     try {
+      setIsLoading(true);
       await api.post("/users", userUploadForm, {
         headers: { "Content-type": "multipart/form-data" },
       });
@@ -112,6 +114,8 @@ export function SignUp() {
           bgColor: "red.100",
         });
       }
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -347,6 +351,7 @@ export function SignUp() {
             title="Criar"
             variant="black"
             onPress={handleSubmit(handleSignUp)}
+            isLoading={isLoading}
           />
         </VStack>
         <VStack mx="12" mb="12" mt="12">
