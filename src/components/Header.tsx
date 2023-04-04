@@ -3,6 +3,7 @@ import { Plus } from "phosphor-react-native";
 import { ButtonComponent } from "./Button";
 import { useNavigation } from "@react-navigation/native";
 import { AppNavigatorRoutesPropsTwo } from "@routes/app.routes";
+import { useAuth } from "@hooks/useAuth";
 
 type HeaderProps = {
   type?: "homeHeader" | "Olá";
@@ -10,6 +11,7 @@ type HeaderProps = {
 
 export function Header({ type = "homeHeader" }: HeaderProps) {
   const navigation = useNavigation<AppNavigatorRoutesPropsTwo>();
+  const { user } = useAuth()
 
   function handleNavigationCreateAd() {
     navigation.navigate("createAd")
@@ -20,7 +22,7 @@ export function Header({ type = "homeHeader" }: HeaderProps) {
       <HStack alignItems="center" px={6} pt={9} justifyContent="space-between">
         <HStack alignItems="center" space="2.5">
           <Image
-            source={{ uri: "https://github.com/mateusrc-dev.png" }}
+            source={{ uri: user.avatar }}
             alt="imagem do usuário"
             rounded="full"
             resizeMode="contain"
@@ -39,7 +41,7 @@ export function Header({ type = "homeHeader" }: HeaderProps) {
               fontSize="md"
               color="gray.100"
             >
-              Mateus!
+              {user.name}!
             </Text>
           </VStack>
         </HStack>
