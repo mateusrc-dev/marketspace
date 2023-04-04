@@ -25,6 +25,7 @@ import { useState } from "react";
 import { api } from "@services/api";
 import axios from "axios";
 import { Alert } from "react-native";
+import { AppError } from "@utils/AppError";
 
 type FormDataProps = {
   email: string;
@@ -103,12 +104,18 @@ export function SignUp() {
       const response = await api.post("/users", userUploadForm, {
         headers: { "Content-type": "multipart/form-data" },
       });
-      console.log(response.data);
+      Alert.alert("Usuário criado com sucesso!");
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        Alert.alert(error.response?.data.message);
-      }
-      console.log(error);
+      const isAppError = error instanceof AppError;
+      const title = isAppError
+        ? error.message
+        : "Não foi possível criar a conta, tente novamente mais tarde!";
+
+      toast.show({
+        title,
+        placement: "top",
+        bgColor: "red.100",
+      });
     }
   }
 
