@@ -5,12 +5,30 @@ import { Input } from "@components/Input";
 import { ButtonComponent } from "@components/Button";
 import { useNavigation } from "@react-navigation/native";
 import { AuthNavigatorRoutesProps } from "@routes/auth.routes";
+import { Controller, useForm } from "react-hook-form";
+import { useAuth } from "@hooks/useAuth";
+
+type FormData = {
+  email: string;
+  password: string;
+};
 
 export function SignIn() {
   const navigation = useNavigation<AuthNavigatorRoutesProps>();
+  const { signIn } = useAuth()
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormData>();
 
   function handleNewAccount() {
     navigation.navigate("signUp");
+  }
+
+  async function handleSignIn({ email, password }: FormData) {
+    await signIn(email, password);
   }
 
   return (
@@ -18,7 +36,7 @@ export function SignIn() {
       <VStack
         flex={1}
         bgColor="gray.600"
-        height={556}
+        height={600}
         roundedBottomLeft={24}
         roundedBottomRight={24}
       >
@@ -47,13 +65,62 @@ export function SignIn() {
           Acesse sua conta
         </Text>
         <VStack space="4" mx="12">
-          <Input
-            placeholder="E-mail"
-            keyboardType="email-address"
-            autoCapitalize="none"
+          <View>
+            <Controller
+              control={control}
+              name="email"
+              rules={{ required: "Informe o email!" }}
+              render={({ field: { onChange } }) => (
+                <Input
+                  placeholder="E-mail"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  onChangeText={onChange}
+                  errorMessage={errors.email?.message}
+                />
+              )}
+            />
+            {errors.email?.message && (
+              <Text
+                color="red.100"
+                fontSize="md"
+                fontWeight="bold"
+                fontFamily="body"
+              >
+                {errors.email?.message}
+              </Text>
+            )}
+          </View>
+          <View mb="4">
+            <Controller
+              control={control}
+              name="password"
+              rules={{ required: "Informe a senha!" }}
+              render={({ field: { onChange } }) => (
+                <Input
+                  placeholder="Senha"
+                  secure={true}
+                  onChangeText={onChange}
+                  errorMessage={errors.password?.message}
+                />
+              )}
+            />
+            {errors.password?.message && (
+              <Text
+                color="red.100"
+                fontSize="md"
+                fontWeight="bold"
+                fontFamily="body"
+              >
+                {errors.password?.message}
+              </Text>
+            )}
+          </View>
+
+          <ButtonComponent
+            title="Entrar"
+            onPress={handleSubmit(handleSignIn)}
           />
-          <Input placeholder="Senha" secure={true} mb="4" />
-          <ButtonComponent title="Entrar" />
         </VStack>
       </VStack>
       <VStack mx="12" mb="12" mt="12">
