@@ -22,15 +22,20 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
 import { useState } from "react";
+import { api } from "@services/api";
+import axios from "axios";
+import { Alert } from "react-native";
 
 type FormDataProps = {
   email: string;
   phone: string;
+  name: string;
   password: string;
   password_confirm: string;
 };
 
 const signUpSchema = yup.object({
+  name: yup.string().required("Informe seu nome!"),
   email: yup.string().required("Informe o e-mail!").email("Email inválido!"),
   phone: yup.string().required("Informe seu telefone!"),
   password: yup
@@ -47,6 +52,7 @@ export function SignUp() {
   const navigation = useNavigation();
   const [photoIsLoading, setPhotoIsLoading] = useState<boolean>(false);
   const [userImage, setUserImage] = useState<string>("");
+  const [userImageType, setUserImageType] = useState<string | undefined>("");
   const toast = useToast();
 
   const {
@@ -57,6 +63,7 @@ export function SignUp() {
     resolver: yupResolver(signUpSchema),
     defaultValues: {
       email: "",
+      name: "",
       phone: "",
       password: "",
       password_confirm: "",
@@ -67,13 +74,42 @@ export function SignUp() {
     navigation.goBack();
   }
 
-  function handleSignUp({
-    email,
-    phone,
-    password,
-    password_confirm,
-  }: FormDataProps) {
-    console.log({ email, phone, password, password_confirm });
+  async function handleSignUp({ email, phone, password, name }: FormDataProps) {
+    if (userImage.length === 0) {
+      return toast.show({
+        title:
+          "Para criar uma conta é necessário que você escolha uma foto de perfil!",
+        placement: "top",
+        bgColor: "red.100",
+      });
+    }
+
+    const fileExtension = userImage.split(".").pop(); // for get the extension of image
+
+    const photoFile = {
+      // we let's defined information to image need have for do upload
+      name: `${name}.${fileExtension}`.toLowerCase().replaceAll(" ", ""),
+      uri: userImage, // uri say the locale of image in device of user
+      type: `${userImageType}/${fileExtension}`,
+    } as any;
+
+    const userUploadForm = new FormData();
+    userUploadForm.append("avatar", photoFile);
+    userUploadForm.append("name", name);
+    userUploadForm.append("email", email);
+    userUploadForm.append("tel", phone);
+    userUploadForm.append("password", password);
+    try {
+      const response = await api.post("/users", userUploadForm, {
+        headers: { "Content-type": "multipart/form-data" },
+      });
+      console.log(response.data);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        Alert.alert(error.response?.data.message);
+      }
+      console.log(error);
+    }
   }
 
   async function handleChangeUserPhoto() {
@@ -100,6 +136,7 @@ export function SignUp() {
           });
         }
         setUserImage(assets[0].uri);
+        setUserImageType(assets[0].type);
       }
     } catch (error) {
       console.log(error);
@@ -173,6 +210,32 @@ export function SignUp() {
         </Center>
 
         <VStack space="4" mx="12">
+          <View>
+            <Controller
+              control={control}
+              name="name"
+              render={({ field: { onChange, value } }) => (
+                <Input
+                  placeholder="Name"
+                  keyboardType="default"
+                  autoCapitalize="none"
+                  onChangeText={onChange}
+                  value={value}
+                  errorMessage={errors.name?.message}
+                />
+              )}
+            />
+            {errors.name?.message && (
+              <Text
+                color="red.100"
+                fontSize="md"
+                fontWeight="bold"
+                fontFamily="body"
+              >
+                {errors.name.message}
+              </Text>
+            )}
+          </View>
           <View>
             <Controller
               control={control}
