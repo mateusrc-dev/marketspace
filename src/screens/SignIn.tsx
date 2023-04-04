@@ -1,4 +1,12 @@
-import { Center, Image, ScrollView, Text, View, VStack } from "native-base";
+import {
+  Center,
+  Image,
+  ScrollView,
+  Text,
+  useToast,
+  View,
+  VStack,
+} from "native-base";
 import Logo from "@assets/logo.svg";
 import Marketspace from "@assets/marketspace.png";
 import { Input } from "@components/Input";
@@ -7,6 +15,9 @@ import { useNavigation } from "@react-navigation/native";
 import { AuthNavigatorRoutesProps } from "@routes/auth.routes";
 import { Controller, useForm } from "react-hook-form";
 import { useAuth } from "@hooks/useAuth";
+import { AppError } from "@utils/AppError";
+import axios from "axios";
+import { useState } from "react";
 
 type FormData = {
   email: string;
@@ -14,8 +25,10 @@ type FormData = {
 };
 
 export function SignIn() {
+  const [isLoading, setIsLoading] = useState(false);
   const navigation = useNavigation<AuthNavigatorRoutesProps>();
-  const { signIn } = useAuth()
+  const { signIn } = useAuth();
+  const toast = useToast();
 
   const {
     control,
@@ -28,7 +41,20 @@ export function SignIn() {
   }
 
   async function handleSignIn({ email, password }: FormData) {
-    await signIn(email, password);
+    try {
+      setIsLoading(true);
+      await signIn(email, password);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        toast.show({
+          title: error.response?.data.message,
+          placement: "top",
+          bgColor: "red.100",
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -120,6 +146,7 @@ export function SignIn() {
           <ButtonComponent
             title="Entrar"
             onPress={handleSubmit(handleSignIn)}
+            isLoading={isLoading}
           />
         </VStack>
       </VStack>
