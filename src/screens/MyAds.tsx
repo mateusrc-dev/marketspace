@@ -1,22 +1,65 @@
 import { Ad } from "@components/Ad";
-import { useNavigation } from "@react-navigation/native";
+import { Loading } from "@components/Loading";
+import { ProductsDTO } from "@dtos/ProductsDTO";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { AppNavigatorRoutesPropsTwo } from "@routes/app.routes";
-import { HStack, Text, VStack, Select, CheckIcon, View } from "native-base";
+import { api } from "@services/api";
+import axios from "axios";
+import {
+  HStack,
+  Text,
+  VStack,
+  Select,
+  CheckIcon,
+  View,
+  useToast,
+  FlatList,
+} from "native-base";
 import { Plus } from "phosphor-react-native";
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { TouchableOpacity } from "react-native";
 
 export function MyAds() {
   const [value, setValue] = useState<string>("todos");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const navigationApp = useNavigation<AppNavigatorRoutesPropsTwo>();
+  const [productsUser, setProductsUser] = useState<ProductsDTO[]>([]);
+  const toast = useToast();
 
   function handleNavigationCreateAd() {
     navigationApp.navigate("createAd");
   }
 
-  function handleNavigationMyAdDetails() {
-    navigationApp.navigate("myAdDetails");
+  function handleNavigationMyAdDetails(id: string) {
+    navigationApp.navigate("myAdDetails", { id });
   }
+
+  async function fetchUserProducts() {
+    try {
+      setIsLoading(true);
+      const response = await api.get("/users/products");
+      setProductsUser(response.data);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        toast.show({
+          title: error.response?.data.message,
+          placement: "top",
+          bgColor: "red.100",
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchUserProducts();
+    }, [])
+  );
+
+  const booleanVar =
+    value === "todos" ? undefined : value === "ativo" ? true : false;
 
   return (
     <VStack flex={1} bgColor="gray.600">
@@ -33,7 +76,7 @@ export function MyAds() {
       </HStack>
       <HStack alignItems="center" px="6" justifyContent="space-between" mt="8">
         <Text color="gray.200" fontSize="sm" fontFamily="body">
-          9 anúncios
+          {productsUser.length} anúncios
         </Text>
         <View>
           <VStack alignItems="center" space={4}>
@@ -60,65 +103,43 @@ export function MyAds() {
               }}
               onValueChange={(itemValue) => setValue(itemValue)}
             >
-              <Select.Item shadow={2} label="Todos" value="todos" />
-              <Select.Item shadow={2} label="Ativos" value="ativos" />
-              <Select.Item shadow={2} label="Inativos" value="inativos" />
+              <Select.Item shadow={2} label="Todos" value={"todos"} />
+              <Select.Item shadow={2} label="Ativos" value={"ativo"} />
+              <Select.Item shadow={2} label="Inativos" value={"inativo"} />
             </Select>
           </VStack>
         </View>
       </HStack>
-      <HStack px={6} flexWrap={"wrap"} justifyContent="space-between" mt="5">
-        <TouchableOpacity onPress={handleNavigationMyAdDetails}>
-          <Ad
-            userAvatar="https://github.com/mateusrc-dev.png"
-            nameAd="pudim de ovo"
-            price="100"
-            type="new"
-            imagePath={
-              "https://a-static.mlcdn.com.br/800x560/bicicleta-aro-29-mountain-bike-caloi-velox-freio-v-brake-21-marchas/magazineluiza/224968700/f8e8eac41c5d1b42ccac9cc345008608.jpg"
-            }
-            showAvatar={false}
-            isActive={false}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={handleNavigationMyAdDetails}>
-          <Ad
-            userAvatar="https://github.com/mateusrc-dev.png"
-            nameAd="pudim de ovo"
-            price="100"
-            type="new"
-            imagePath={
-              "https://a-static.mlcdn.com.br/800x560/bicicleta-aro-29-mountain-bike-caloi-velox-freio-v-brake-21-marchas/magazineluiza/224968700/f8e8eac41c5d1b42ccac9cc345008608.jpg"
-            }
-            showAvatar={false}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={handleNavigationMyAdDetails}>
-          <Ad
-            userAvatar="https://github.com/mateusrc-dev.png"
-            nameAd="pudim de ovo"
-            price="100"
-            type="new"
-            imagePath={
-              "https://a-static.mlcdn.com.br/800x560/bicicleta-aro-29-mountain-bike-caloi-velox-freio-v-brake-21-marchas/magazineluiza/224968700/f8e8eac41c5d1b42ccac9cc345008608.jpg"
-            }
-            showAvatar={false}
-            isActive={false}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={handleNavigationMyAdDetails}>
-          <Ad
-            userAvatar="https://github.com/mateusrc-dev.png"
-            nameAd="pudim de ovo"
-            price="100"
-            type="new"
-            imagePath={
-              "https://a-static.mlcdn.com.br/800x560/bicicleta-aro-29-mountain-bike-caloi-velox-freio-v-brake-21-marchas/magazineluiza/224968700/f8e8eac41c5d1b42ccac9cc345008608.jpg"
-            }
-            showAvatar={false}
-          />
-        </TouchableOpacity>
-      </HStack>
+      {isLoading ? (
+        <Loading />
+      ) : (
+        <FlatList
+          data={productsUser}
+          keyExtractor={(item) => item.id}
+          numColumns={2}
+          px={6}
+          mt={6}
+          showsVerticalScrollIndicator={false}
+          columnWrapperStyle={{ justifyContent: "space-between" }}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              onPress={() => handleNavigationMyAdDetails(item.id)}
+            >
+              {booleanVar === item.is_active || booleanVar === undefined ? (
+                <Ad
+                  isActive={item.is_active}
+                  userAvatar=""
+                  showAvatar={false}
+                  nameAd={item.name}
+                  price={item.price}
+                  type={item.is_new === true ? "new" : "used"}
+                  imagePath={item.product_images[0].path}
+                />
+              ) : null}
+            </TouchableOpacity>
+          )}
+        />
+      )}
     </VStack>
   );
 }

@@ -10,6 +10,7 @@ import {
   Checkbox,
   FlatList,
   Button,
+  useToast,
 } from "native-base";
 import {
   ArrowLeft,
@@ -23,24 +24,46 @@ import {
   X,
 } from "phosphor-react-native";
 import { Dimensions, TouchableOpacity } from "react-native";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@components/Input";
 import { TextArea } from "@components/TextArea";
 import { ButtonComponent } from "@components/Button";
 import { ScrollView } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
-const { height, width } = Dimensions.get("window");
+import { api } from "@services/api";
+import axios from "axios";
+import { Loading } from "@components/Loading";
+
+type RoutesParamsProps = {
+  id: string;
+};
 
 export function EditAd() {
+  const [productImageApi, setProductImageApi] = useState<
+    { id: string; path: string }[]
+  >([]);
+  const [groupValuesApi, setGroupValuesApi] = useState<
+    { key: string; name: string }[]
+  >([]);
   const [photoIsLoading, setPhotoIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [userAvatar, setUserAvatar] = useState("");
+  const [userName, setUserName] = useState("");
+  const [title, setTitle] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
+  const [price, setPrice] = useState<string>("");
   const [productImage, setProductImage] = useState<string[]>([]);
-  const [value, setValue] = useState("");
-  const [groupValues, setGroupValues] = useState<string[] | undefined>();
+  const [value, setValue] = useState<string | undefined>(undefined);
+  const [groupValues, setGroupValues] = useState<string[]>([]);
   const [switchValue, setSwitchValue] = useState<boolean>(false);
   const [changePage, setChangePage] = useState<boolean>(false);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const { width } = Dimensions.get("window");
   const navigation = useNavigation();
+  const route = useRoute();
+  const toast = useToast();
+  const { id } = route.params as RoutesParamsProps;
 
   function handleSwitchValue() {
     setSwitchValue((prevState) => !prevState);
@@ -89,6 +112,56 @@ export function EditAd() {
     }
   }
 
+  async function fetchDetailsProductUser() {
+    try {
+      setIsLoading(true);
+      const response = await api.get(`/products/${id}`);
+      setProductImageApi(response.data.product_images);
+      setSwitchValue(response.data.accept_trade);
+      setUserAvatar(response.data.user.avatar);
+      setUserName(response.data.user.name);
+      setGroupValuesApi(response.data.payment_methods);
+      setValue(response.data.is_new === true ? "new" : "used");
+      setTitle(response.data.name);
+      setDescription(response.data.description);
+      setPrice(response.data.price);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        toast.show({
+          title: error.response?.data.message,
+          placement: "top",
+          bgColor: "red.100",
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    fetchDetailsProductUser();
+  }, []);
+
+  useEffect(() => {
+    function handleImageProduct() {
+      for (let i = 0; productImageApi.length > i; i += 1) {
+        setProductImage((prevState) => [...prevState, productImageApi[i].path]);
+      }
+    }
+    handleImageProduct();
+  }, [productImageApi]);
+
+  useEffect(() => {
+    function handleGroupsProduct() {
+      let methods = [];
+      for (let i = 0; groupValuesApi.length > i; i += 1) {
+        methods.push(groupValuesApi[i].key);
+      }
+      setGroupValues(methods);
+    }
+    handleGroupsProduct();
+  }, [groupValuesApi]);
+
   return (
     <>
       {!changePage ? (
@@ -104,251 +177,269 @@ export function EditAd() {
             </Text>
             <View />
           </HStack>
-          <View style={{ flex: 1 }}>
-            <ScrollView>
-              <Text
-                mt="6"
-                mb="1"
-                px={6}
-                color="gray.200"
-                fontSize="md"
-                fontWeight="bold"
-                fontFamily="body"
-              >
-                Imagens
-              </Text>
-              <Text px={6} color="gray.300" fontSize="md" fontFamily="body">
-                Escolha até 3 imagens para mostrar o quanto o seu produto é
-                incrível!
-              </Text>
-              <HStack px={6} mt="4" mb="8">
-                <FlatList
-                  data={productImage}
-                  keyExtractor={(item) => item}
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  ListFooterComponent={() => (
-                    <View>
-                      {photoIsLoading ? (
-                        <Skeleton
+          {isLoading ? (
+            <Loading />
+          ) : (
+            <View style={{ flex: 1 }}>
+              <ScrollView>
+                <Text
+                  mt="6"
+                  mb="1"
+                  px={6}
+                  color="gray.200"
+                  fontSize="md"
+                  fontWeight="bold"
+                  fontFamily="body"
+                >
+                  Imagens
+                </Text>
+                <Text px={6} color="gray.300" fontSize="md" fontFamily="body">
+                  Escolha até 3 imagens para mostrar o quanto o seu produto é
+                  incrível!
+                </Text>
+                <HStack px={6} mt="4" mb="8">
+                  <FlatList
+                    data={productImage}
+                    keyExtractor={(item) => item}
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    ListFooterComponent={() => (
+                      <View>
+                        {photoIsLoading ? (
+                          <Skeleton
+                            w="100"
+                            h="100"
+                            rounded="6"
+                            startColor="gray.300"
+                            endColor="gray.500"
+                          />
+                        ) : (
+                          productImage.length < 3 && (
+                            <TouchableOpacity onPress={handleChangeUserPhoto}>
+                              <View
+                                alignItems="center"
+                                justifyContent="center"
+                                bgColor="gray.500"
+                                w="100"
+                                h="100"
+                                rounded="6"
+                              >
+                                <Plus size="24" color="#9F9BA1" />
+                              </View>
+                            </TouchableOpacity>
+                          )
+                        )}
+                      </View>
+                    )}
+                    renderItem={({ item }) => (
+                      <View position="relative">
+                        <Image
+                          source={{
+                            uri: `${api.defaults.baseURL}/images/${item}`,
+                          }}
+                          alt="imagem do produto"
                           w="100"
                           h="100"
                           rounded="6"
-                          startColor="gray.300"
-                          endColor="gray.500"
+                          resizeMode="cover"
+                          mr={1.5}
                         />
-                      ) : (
-                        productImage.length < 3 && (
-                          <TouchableOpacity onPress={handleChangeUserPhoto}>
-                            <View
-                              alignItems="center"
-                              justifyContent="center"
-                              bgColor="gray.500"
-                              w="100"
-                              h="100"
-                              rounded="6"
-                            >
-                              <Plus size="24" color="#9F9BA1" />
-                            </View>
-                          </TouchableOpacity>
-                        )
-                      )}
-                    </View>
-                  )}
-                  renderItem={({ item }) => (
-                    <View position="relative">
-                      <Image
-                        source={{
-                          uri: `${item}`,
-                        }}
-                        alt="imagem do produto"
-                        w="100"
-                        h="100"
-                        rounded="6"
-                        resizeMode="cover"
-                        mr={1.5}
-                      />
-                      <Button
-                        position="absolute"
-                        alignItems="center"
-                        h="4"
-                        w="4"
-                        bgColor="gray.200"
-                        justifyContent="center"
-                        top="1"
-                        right="2.5"
-                        rounded="full"
-                        p={0}
-                        _pressed={{ bg: "gray.400" }}
-                        onPress={() => handleDeleteProductImage(item)}
-                      >
-                        <X size="12" color="#F7F7F8" />
-                      </Button>
-                    </View>
-                  )}
+                        <Button
+                          position="absolute"
+                          alignItems="center"
+                          h="4"
+                          w="4"
+                          bgColor="gray.200"
+                          justifyContent="center"
+                          top="1"
+                          right="2.5"
+                          rounded="full"
+                          p={0}
+                          _pressed={{ bg: "gray.400" }}
+                          onPress={() => handleDeleteProductImage(item)}
+                        >
+                          <X size="12" color="#F7F7F8" />
+                        </Button>
+                      </View>
+                    )}
+                  />
+                </HStack>
+                <Text
+                  mb="4"
+                  px={6}
+                  color="gray.200"
+                  fontSize="md"
+                  fontWeight="bold"
+                  fontFamily="body"
+                >
+                  Sobre o produto
+                </Text>
+                <Input
+                  mx="6"
+                  mb="4"
+                  placeholder="Título do anúncio"
+                  onChangeText={(e) => setTitle(e)}
+                  value={title}
                 />
-              </HStack>
-              <Text
-                mb="4"
-                px={6}
-                color="gray.200"
-                fontSize="md"
-                fontWeight="bold"
-                fontFamily="body"
-              >
-                Sobre o produto
-              </Text>
-              <Input mx="6" mb="4" placeholder="Título do anúncio" />
-              <TextArea mx="6" mb={4} placeholder="Descrição do produto" />
-              <Radio.Group
-                name="myRadioGroup"
-                accessibilityLabel="product new or used"
-                value={value}
-                onChange={(nextValue) => setValue(nextValue)}
-                px={6}
-                mb="8"
-              >
-                <HStack space={"5"}>
-                  <Radio
-                    value="new"
-                    color={"gray.200"}
-                    fontSize="md"
-                    fontFamily="body"
-                    colorScheme="blue"
-                  >
-                    Produto novo
-                  </Radio>
-                  <Radio
-                    value="used"
-                    color={"gray.200"}
-                    fontSize="md"
-                    fontFamily="body"
-                    colorScheme="blue"
-                  >
-                    Produto usado
-                  </Radio>
-                </HStack>
-              </Radio.Group>
-              <Text
-                mb="4"
-                px={6}
-                color="gray.200"
-                fontSize="md"
-                fontWeight="bold"
-                fontFamily="body"
-              >
-                Venda
-              </Text>
-              <Input
-                purchase={true}
-                mx={6}
-                mb="4"
-                placeholder="Valor do produto"
-              />
-              <Text
-                px={6}
-                color="gray.200"
-                fontSize="sm"
-                fontWeight="bold"
-                fontFamily="body"
-              >
-                Aceita troca?
-              </Text>
-              <Switch
-                accessibilityLabel="accept replacement"
-                height={"8"}
-                width={"10"}
-                size="lg"
-                value={switchValue}
-                onValueChange={handleSwitchValue}
-                trackColor={{ false: "#D9D8DA", true: "#647AC7" }}
-                thumbColor={switchValue ? "#F7F7F8" : "#F7F7F8"}
-                ios_backgroundColor="#3e3e3e"
-                ml={8}
-              />
-              <Text
-                px={6}
-                color="gray.200"
-                fontSize="sm"
-                fontWeight="bold"
-                fontFamily="body"
-                mb={3}
-              >
-                Meios de pagamento aceito
-              </Text>
-              <Checkbox.Group
-                onChange={setGroupValues}
-                value={groupValues}
-                accessibilityLabel="type pay"
-                px={6}
-              >
-                <HStack mb={1} space={2}>
-                  <Checkbox
-                    value="boleto"
-                    accessibilityLabel="boleto"
-                    colorScheme="blue"
-                  />
-                  <Text fontSize="md" color="gray.200" fontFamily="body">
-                    Boleto
-                  </Text>
-                </HStack>
-                <HStack mb={1} space={2}>
-                  <Checkbox
-                    value="pix"
-                    accessibilityLabel="pix"
-                    colorScheme="blue"
-                  />
-                  <Text fontSize="md" color="gray.200" fontFamily="body">
-                    Pix
-                  </Text>
-                </HStack>
-                <HStack mb={1} space={2}>
-                  <Checkbox
-                    value="dinheiro"
-                    accessibilityLabel="dinheiro"
-                    colorScheme="blue"
-                  />
-                  <Text fontSize="md" color="gray.200" fontFamily="body">
-                    Dinheiro
-                  </Text>
-                </HStack>
-                <HStack mb={1} space={2}>
-                  <Checkbox
-                    value="cartão de crédito"
-                    accessibilityLabel="cartão de crédito"
-                    colorScheme="blue"
-                  />
-                  <Text fontSize="md" color="gray.200" fontFamily="body">
-                    Cartão de Crédito
-                  </Text>
-                </HStack>
-                <HStack mb={1} space={2}>
-                  <Checkbox
-                    value="depósito bancário"
-                    accessibilityLabel="depósito bancário"
-                    colorScheme="blue"
-                  />
-                  <Text fontSize="md" color="gray.200" fontFamily="body">
-                    Depósito Bancário
-                  </Text>
-                </HStack>
-              </Checkbox.Group>
-              <HStack
-                justifyContent="space-between"
-                px={6}
-                py={5}
-                bgColor="gray.700"
-                mt="8"
-              >
-                <ButtonComponent title="Cancelar" variant="light" />
-                <ButtonComponent
-                  title="Avançar"
-                  variant="black"
-                  onPress={onChangePageVisualization}
+                <TextArea
+                  mx="6"
+                  mb={4}
+                  placeholder="Descrição do produto"
+                  onChangeText={(e: any) => setDescription(e)}
+                  value={description}
                 />
-              </HStack>
-            </ScrollView>
-          </View>
+                <Radio.Group
+                  name="myRadioGroup"
+                  accessibilityLabel="product new or used"
+                  value={value}
+                  onChange={(nextValue) => setValue(nextValue)}
+                  px={6}
+                  mb="8"
+                >
+                  <HStack space={"5"}>
+                    <Radio
+                      value={"new"}
+                      color={"gray.200"}
+                      fontSize="md"
+                      fontFamily="body"
+                      colorScheme="blue"
+                    >
+                      Produto novo
+                    </Radio>
+                    <Radio
+                      value={"used"}
+                      color={"gray.200"}
+                      fontSize="md"
+                      fontFamily="body"
+                      colorScheme="blue"
+                    >
+                      Produto usado
+                    </Radio>
+                  </HStack>
+                </Radio.Group>
+                <Text
+                  mb="4"
+                  px={6}
+                  color="gray.200"
+                  fontSize="md"
+                  fontWeight="bold"
+                  fontFamily="body"
+                >
+                  Venda
+                </Text>
+                <Input
+                  purchase={true}
+                  mx={6}
+                  mb="4"
+                  placeholder="Valor do produto"
+                  value={String(price)}
+                  onChangeText={(e) => setPrice(e)}
+                />
+                <Text
+                  px={6}
+                  color="gray.200"
+                  fontSize="sm"
+                  fontWeight="bold"
+                  fontFamily="body"
+                >
+                  Aceita troca?
+                </Text>
+                <Switch
+                  accessibilityLabel="accept replacement"
+                  height={"8"}
+                  width={"10"}
+                  size="lg"
+                  isChecked={switchValue}
+                  onValueChange={(value) => setSwitchValue(value)}
+                  trackColor={{ false: "#D9D8DA", true: "#647AC7" }}
+                  thumbColor={switchValue ? "#F7F7F8" : "#F7F7F8"}
+                  ios_backgroundColor="#3e3e3e"
+                  ml={8}
+                />
+                <Text
+                  px={6}
+                  color="gray.200"
+                  fontSize="sm"
+                  fontWeight="bold"
+                  fontFamily="body"
+                  mb={3}
+                >
+                  Meios de pagamento aceito
+                </Text>
+                <Checkbox.Group
+                  onChange={setGroupValues}
+                  value={groupValues}
+                  accessibilityLabel="type pay"
+                  px={6}
+                >
+                  <HStack mb={1} space={2}>
+                    <Checkbox
+                      value="boleto"
+                      accessibilityLabel="boleto"
+                      colorScheme="blue"
+                    />
+                    <Text fontSize="md" color="gray.200" fontFamily="body">
+                      Boleto
+                    </Text>
+                  </HStack>
+                  <HStack mb={1} space={2}>
+                    <Checkbox
+                      value="pix"
+                      accessibilityLabel="pix"
+                      colorScheme="blue"
+                    />
+                    <Text fontSize="md" color="gray.200" fontFamily="body">
+                      Pix
+                    </Text>
+                  </HStack>
+                  <HStack mb={1} space={2}>
+                    <Checkbox
+                      value="cash"
+                      accessibilityLabel="dinheiro"
+                      colorScheme="blue"
+                    />
+                    <Text fontSize="md" color="gray.200" fontFamily="body">
+                      Dinheiro
+                    </Text>
+                  </HStack>
+                  <HStack mb={1} space={2}>
+                    <Checkbox
+                      value="card"
+                      accessibilityLabel="cartão de crédito"
+                      colorScheme="blue"
+                    />
+                    <Text fontSize="md" color="gray.200" fontFamily="body">
+                      Cartão de Crédito
+                    </Text>
+                  </HStack>
+                  <HStack mb={1} space={2}>
+                    <Checkbox
+                      value="deposit"
+                      accessibilityLabel="depósito bancário"
+                      colorScheme="blue"
+                    />
+                    <Text fontSize="md" color="gray.200" fontFamily="body">
+                      Depósito Bancário
+                    </Text>
+                  </HStack>
+                </Checkbox.Group>
+                <HStack
+                  justifyContent="space-between"
+                  px={6}
+                  py={5}
+                  bgColor="gray.700"
+                  mt="8"
+                >
+                  <ButtonComponent title="Cancelar" variant="light" />
+                  <ButtonComponent
+                    title="Avançar"
+                    variant="black"
+                    onPress={onChangePageVisualization}
+                  />
+                </HStack>
+              </ScrollView>
+            </View>
+          )}
         </VStack>
       ) : (
         <VStack flex={1} bgColor="gray.600">
@@ -378,7 +469,7 @@ export function EditAd() {
               renderItem={({ item }) => (
                 <Image
                   alt="imagem do item"
-                  source={{ uri: `${item}` }}
+                  source={{ uri: `${api.defaults.baseURL}/images/${item}` }}
                   width={width}
                   height="280"
                   resizeMode="cover"
@@ -419,7 +510,7 @@ export function EditAd() {
             <VStack>
               <HStack alignItems="center" space={"2"} mt="5" mx="6">
                 <Image
-                  source={{ uri: "https://github.com/mateusrc-dev.png" }}
+                  source={{ uri: `${api.defaults.baseURL}/images/${userAvatar}` }}
                   alt="avatar do usuário"
                   rounded="full"
                   borderWidth="2"
@@ -429,7 +520,7 @@ export function EditAd() {
                   h={6}
                 />
                 <Text color="gray.100" fontSize="sm" fontFamily="body">
-                  Mateus Carvalho
+                  {userName}
                 </Text>
               </HStack>
               <View
@@ -458,7 +549,7 @@ export function EditAd() {
                   fontWeight="bold"
                   color="gray.100"
                 >
-                  Bicicleta
+                  {title}
                 </Text>
                 <Text
                   color="blue.200"
@@ -474,7 +565,7 @@ export function EditAd() {
                   >
                     R$
                   </Text>
-                  120,00
+                  {price}
                 </Text>
               </HStack>
               <Text
@@ -484,10 +575,7 @@ export function EditAd() {
                 color="gray.200"
                 fontFamily="body"
               >
-                Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                Veritatis, atque quisquam nemo unde laborum ex eveniet minima
-                praesentium? Asperiores commodi, voluptatum quos laborum error
-                quasi nam est ea dignissimos recusandae.
+                {description}
               </Text>
               <HStack mx="6" alignItems="center" space="2" mb="4">
                 <Text
@@ -536,7 +624,7 @@ export function EditAd() {
               )}
               {groupValues?.map(
                 (item) =>
-                  item === "dinheiro" && (
+                  item === "cash" && (
                     <HStack mx="6" alignItems="center" space="2">
                       <Money size={18} color="#1A181B" />
                       <Text color="gray.200" fontSize="sm" fontFamily="body">
@@ -547,7 +635,7 @@ export function EditAd() {
               )}
               {groupValues?.map(
                 (item) =>
-                  item === "cartão de crédito" && (
+                  item === "card" && (
                     <HStack mx="6" alignItems="center" space="2">
                       <CreditCard size={18} color="#1A181B" />
                       <Text color="gray.200" fontSize="sm" fontFamily="body">
@@ -558,7 +646,7 @@ export function EditAd() {
               )}
               {groupValues?.map(
                 (item) =>
-                  item === "depósito bancário" && (
+                  item === "deposit" && (
                     <HStack mx="6" alignItems="center" space="2">
                       <Bank size={18} color="#1A181B" />
                       <Text color="gray.200" fontSize="sm" fontFamily="body">

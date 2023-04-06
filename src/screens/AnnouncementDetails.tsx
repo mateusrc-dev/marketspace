@@ -21,7 +21,7 @@ import {
 import { useNavigation, useRoute } from "@react-navigation/native";
 import * as React from "react";
 import { useState, useEffect } from "react";
-import { TouchableOpacity } from "react-native";
+import { Linking, TouchableOpacity } from "react-native";
 import { ButtonComponent } from "@components/Button";
 import { Dimensions } from "react-native";
 import { api } from "@services/api";
@@ -42,6 +42,7 @@ export function AnnouncementDetails({ ...rest }: AdDetailsProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [productDetails, setProductDetails] = useState<ProductDTO>();
   const [userAvatar, setUserAvatar] = useState("");
+  const [userTel, setUserTel] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
   const navigation = useNavigation();
   const { height, width } = Dimensions.get("window");
@@ -53,6 +54,10 @@ export function AnnouncementDetails({ ...rest }: AdDetailsProps) {
     navigation.goBack();
   }
 
+  function handleWhatsAppNavigate(tel: string) {
+    Linking.openURL(`https://wa.me/55${tel}`);
+  }
+
   async function fetchDetailsProduct() {
     try {
       setIsLoading(true);
@@ -60,6 +65,7 @@ export function AnnouncementDetails({ ...rest }: AdDetailsProps) {
       setProductDetails(response.data);
       setProductImage(response.data.product_images);
       setUserAvatar(response.data.user.avatar);
+      setUserTel(response.data.user.tel);
     } catch (error) {
       if (axios.isAxiosError(error)) {
         toast.show({
@@ -315,9 +321,15 @@ export function AnnouncementDetails({ ...rest }: AdDetailsProps) {
                 </Text>
                 {productDetails?.price}
               </Text>
-              <ButtonComponent title="Entrar em contato" variant="blue">
-                <WhatsappLogo weight="fill" color="#EDECEE" size="16" />
-              </ButtonComponent>
+              {userTel.length !== 0 && (
+                <ButtonComponent
+                  title="Entrar em contato"
+                  variant="blue"
+                  onPress={() => handleWhatsAppNavigate(userTel)}
+                >
+                  <WhatsappLogo weight="fill" color="#EDECEE" size="16" />
+                </ButtonComponent>
+              )}
             </HStack>
           </ScrollView>
         </>

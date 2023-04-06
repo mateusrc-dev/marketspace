@@ -27,8 +27,8 @@ type AppRoutesTwo = {
   Home: undefined;
   adDetails: { id: string };
   createAd: undefined;
-  myAdDetails: undefined;
-  editAd: undefined;
+  myAdDetails: { id: string };
+  editAd: { id: string };
 };
 
 export type AppNavigatorRoutesProps = BottomTabNavigationProp<AppRoutes>;
