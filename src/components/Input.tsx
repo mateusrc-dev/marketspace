@@ -105,7 +105,7 @@ export function Input({
             }}
             {...rest}
           />
-          <HStack position="absolute" right={0.485} top={0.485}>
+          <HStack position="absolute" right={0} top={0}>
             <Button
               bgColor="transparent"
               _pressed={{ bg: "gray.400" }}

@@ -46,9 +46,6 @@ export function Home() {
   const navigation = useNavigation<AppNavigatorRoutesProps>();
   const navigationApp = useNavigation<AppNavigatorRoutesPropsTwo>();
   const toast = useToast();
-  console.log(switchValue);
-  console.log(groupValues);
-  console.log(conditionState);
 
   const { isOpen, onClose, onOpen } = useDisclose();
 
