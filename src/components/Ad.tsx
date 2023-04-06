@@ -1,3 +1,4 @@
+import { api } from "@services/api";
 import { Image, Text, VStack, IImageProps, View } from "native-base";
 
 type AdProps = IImageProps & {
@@ -5,7 +6,7 @@ type AdProps = IImageProps & {
   userAvatar: string;
   type: "new" | "used";
   nameAd: string;
-  price: string;
+  price: number;
   showAvatar?: boolean;
   isActive?: boolean;
 };
@@ -25,7 +26,7 @@ export function Ad({
       <View position="relative" w="153" h="100">
         <Image
           {...rest}
-          source={{ uri: `${imagePath}` }}
+          source={{ uri: `${api.defaults.baseURL}/images/${imagePath}` }}
           alt="imagem do produto do usuário"
           w="153"
           h="100"
@@ -35,7 +36,7 @@ export function Ad({
         {showAvatar && (
           <Image
             {...rest}
-            source={{ uri: `${userAvatar}` }}
+            source={{ uri: `${api.defaults.baseURL}/images/${userAvatar}` }}
             alt="avatar do usuário"
             position="absolute"
             rounded="full"
@@ -85,7 +86,12 @@ export function Ad({
         )}
       </View>
       <VStack space="0.5">
-        <Text mt="1" fontSize="sm" fontFamily="body" color={isActive ? "gray.200" : "gray.400"}>
+        <Text
+          mt="1"
+          fontSize="sm"
+          fontFamily="body"
+          color={isActive ? "gray.200" : "gray.400"}
+        >
           {nameAd}
         </Text>
         <Text

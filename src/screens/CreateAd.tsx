@@ -52,6 +52,7 @@ export function CreateAd() {
   const [description, setDescription] = useState<string>("");
   const [price, setPrice] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  console.log(groupValues)
 
   const toast = useToast();
   const navigation = useNavigation<AppNavigatorRoutesPropsTwo>();
@@ -432,7 +433,7 @@ export function CreateAd() {
                 </HStack>
                 <HStack mb={1} space={2}>
                   <Checkbox
-                    value="dinheiro"
+                    value="cash"
                     accessibilityLabel="dinheiro"
                     colorScheme="blue"
                   />
@@ -442,7 +443,7 @@ export function CreateAd() {
                 </HStack>
                 <HStack mb={1} space={2}>
                   <Checkbox
-                    value="cartão de crédito"
+                    value="card"
                     accessibilityLabel="cartão de crédito"
                     colorScheme="blue"
                   />
@@ -452,7 +453,7 @@ export function CreateAd() {
                 </HStack>
                 <HStack mb={1} space={2}>
                   <Checkbox
-                    value="depósito bancário"
+                    value="deposit"
                     accessibilityLabel="depósito bancário"
                     colorScheme="blue"
                   />

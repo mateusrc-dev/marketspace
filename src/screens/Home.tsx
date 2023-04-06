@@ -31,12 +31,18 @@ import { ProductsDTO } from "@dtos/ProductsDTO";
 export function Home() {
   const [conditionState, setConditionState] = useState<
     true | false | undefined
-  >(undefined);
-  const [groupValues, setGroupValues] = useState<string[]>([]);
+  >(false);
+  const [groupValues, setGroupValues] = useState<string[]>([
+    "pix",
+    "boleto",
+    "cash",
+    "card",
+    "deposit",
+  ]);
   const [switchValue, setSwitchValue] = useState<boolean>(false);
-  const [productsUsers, setProductsUsers] = useState();
+  const [productsUsers, setProductsUsers] = useState<ProductsDTO[]>([]);
   const [query, setQuery] = useState<string>("");
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const navigation = useNavigation<AppNavigatorRoutesProps>();
   const navigationApp = useNavigation<AppNavigatorRoutesPropsTwo>();
   const toast = useToast();
@@ -72,16 +78,12 @@ export function Home() {
     navigationApp.navigate("adDetails", { id });
   }
 
+  async function useFilterInFetch() {}
+
   async function fetchProducts() {
     try {
       setIsLoading(true);
-      const response = await api.get(
-        `/products/?is_new=${String(conditionState)}&accept_trade=${String(
-          switchValue
-        )}&payment_methods=${groupValues}${
-          query.length > 0 && `&query=${query}`
-        }`
-      );
+      const response = await api.get(`/products`);
       setProductsUsers(response.data);
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -178,35 +180,28 @@ export function Home() {
       {isLoading ? (
         <Loading />
       ) : (
-        <ScrollView>
-          <HStack
-            px={6}
-            flexWrap={"wrap"}
-            justifyContent="space-between"
-            mt="6"
-          >
-            <FlatList
-              data={productsUsers}
-              //keyExtractor={(item) => item.id}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                //onPress={() => handleNavigationAdDetails(item.id)}
-                >
-                  <Ad
-                    userAvatar="https://github.com/mateusrc-dev.png"
-                    nameAd="pudim de ovo"
-                    price="100"
-                    type="new"
-                    imagePath={
-                      "https://a-static.mlcdn.com.br/800x560/bicicleta-aro-29-mountain-bike-caloi-velox-freio-v-brake-21-marchas/magazineluiza/224968700/f8e8eac41c5d1b42ccac9cc345008608.jpg"
-                    }
-                  />
-                </TouchableOpacity>
-              )}
-              horizontal
-            />
-          </HStack>
-        </ScrollView>
+        <FlatList
+          data={productsUsers}
+          keyExtractor={(item) => item.id}
+          numColumns={2}
+          px={6}
+          mt={6}
+          showsVerticalScrollIndicator={false}
+          columnWrapperStyle={{ justifyContent: "space-between" }}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              onPress={() => handleNavigationAdDetails(item.id)}
+            >
+              <Ad
+                userAvatar={item.user.avatar}
+                nameAd={item.name}
+                price={item.price}
+                type={item.is_new === true ? "new" : "used"}
+                imagePath={item.product_images[0].path}
+              />
+            </TouchableOpacity>
+          )}
+        />
       )}
 
       <Actionsheet
