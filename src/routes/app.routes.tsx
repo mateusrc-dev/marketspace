@@ -25,7 +25,7 @@ type AppRoutes = {
 
 type AppRoutesTwo = {
   Home: undefined;
-  adDetails: undefined;
+  adDetails: { id: string };
   createAd: undefined;
   myAdDetails: undefined;
   editAd: undefined;

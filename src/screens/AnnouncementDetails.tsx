@@ -5,6 +5,7 @@ import {
   Image,
   ScrollView,
   Text,
+  useToast,
   View,
   VStack,
 } from "native-base";
@@ -17,14 +18,20 @@ import {
   QrCode,
   WhatsappLogo,
 } from "phosphor-react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import * as React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { TouchableOpacity } from "react-native";
 import { ButtonComponent } from "@components/Button";
 import { Dimensions } from "react-native";
+import { api } from "@services/api";
+import axios from "axios";
 
 type AdDetailsProps = IImageProps;
+
+type RoutesParamsProps = {
+  id: string;
+};
 
 export function AnnouncementDetails({ ...rest }: AdDetailsProps) {
   const [type, setType] = useState<string>("new");
@@ -34,13 +41,39 @@ export function AnnouncementDetails({ ...rest }: AdDetailsProps) {
     "https://blog.bikeregistrada.com.br/wp-content/uploads/2020/10/escolherotamanhodabicicleta-1.jpeg",
     "https://blog.bikeregistrada.com.br/wp-content/uploads/2020/10/escolherotamanhodabicicleta-1.jpeg",
   ]);
+  const [isLoading, setIsLoading] = useState(true)
   const [currentIndex, setCurrentIndex] = useState(0);
   const navigation = useNavigation();
   const { height, width } = Dimensions.get("window");
+  const route = useRoute();
+  const { id } = route.params as RoutesParamsProps;
+  const toast = useToast()
 
   function handleReturnNavigation() {
     navigation.goBack();
   }
+
+    async function fetchDetailsProduct() {
+    try {
+      setIsLoading(true);
+      const response = await api.get(`/products/${id}`);
+      console.log(response.data);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        toast.show({
+          title: error.response?.data.message,
+          placement: "top",
+          bgColor: "red.100",
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    fetchDetailsProduct();
+  }, []);
 
   return (
     <VStack flex={1} bgColor="gray.600">

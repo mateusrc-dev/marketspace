@@ -8,6 +8,8 @@ import {
   View,
   VStack,
   Switch,
+  useToast,
+  FlatList,
 } from "native-base";
 import { Header } from "@components/Header";
 import { ArrowRight, Tag, X, XCircle } from "phosphor-react-native";
@@ -19,15 +21,26 @@ import {
 } from "@routes/app.routes";
 import { Input } from "@components/Input";
 import { Ad } from "@components/Ad";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ButtonComponent } from "@components/Button";
+import axios from "axios";
+import { api } from "@services/api";
+import { Loading } from "@components/Loading";
+import { ProductsDTO } from "@dtos/ProductsDTO";
 
 export function Home() {
-  const [conditionState, setConditionState] = useState<"new" | "used" | "">("");
-  const [groupValues, setGroupValues] = useState<string[] | undefined>();
+  const [conditionState, setConditionState] = useState<
+    true | false | undefined
+  >(undefined);
+  const [groupValues, setGroupValues] = useState<string[]>([]);
   const [switchValue, setSwitchValue] = useState<boolean>(false);
+  const [productsUsers, setProductsUsers] = useState();
+  const [query, setQuery] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(true);
   const navigation = useNavigation<AppNavigatorRoutesProps>();
   const navigationApp = useNavigation<AppNavigatorRoutesPropsTwo>();
+  const toast = useToast();
+  console.log(productsUsers);
 
   const { isOpen, onClose, onOpen } = useDisclose();
 
@@ -36,18 +49,18 @@ export function Home() {
   }
 
   function handleConditionNew() {
-    if (conditionState === "new") {
-      setConditionState("");
+    if (conditionState === true) {
+      setConditionState(undefined);
     } else {
-      setConditionState("new");
+      setConditionState(true);
     }
   }
 
   function handleConditionUsed() {
-    if (conditionState === "used") {
-      setConditionState("");
+    if (conditionState === false) {
+      setConditionState(undefined);
     } else {
-      setConditionState("used");
+      setConditionState(false);
     }
   }
 
@@ -55,9 +68,37 @@ export function Home() {
     setSwitchValue((prevState) => !prevState);
   }
 
-  function handleNavigationAdDetails() {
-    navigationApp.navigate("adDetails");
+  function handleNavigationAdDetails(id: string) {
+    navigationApp.navigate("adDetails", { id });
   }
+
+  async function fetchProducts() {
+    try {
+      setIsLoading(true);
+      const response = await api.get(
+        `/products/?is_new=${String(conditionState)}&accept_trade=${String(
+          switchValue
+        )}&payment_methods=${groupValues}${
+          query.length > 0 && `&query=${query}`
+        }`
+      );
+      setProductsUsers(response.data);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        toast.show({
+          title: error.response?.data.message,
+          placement: "top",
+          bgColor: "red.100",
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    fetchProducts();
+  }, [switchValue, groupValues, query, conditionState]);
 
   return (
     <VStack flex={1} bgColor="gray.600">
@@ -130,56 +171,43 @@ export function Home() {
           placeholder="Buscar anúncio"
           search={true}
           handleStateFilter={onOpen}
+          onChangeText={(e) => setQuery(e)}
+          value={query}
         />
       </View>
-      <ScrollView>
-        <HStack px={6} flexWrap={"wrap"} justifyContent="space-between" mt="6">
-          <TouchableOpacity onPress={handleNavigationAdDetails}>
-            <Ad
-              userAvatar="https://github.com/mateusrc-dev.png"
-              nameAd="pudim de ovo"
-              price="100"
-              type="new"
-              imagePath={
-                "https://a-static.mlcdn.com.br/800x560/bicicleta-aro-29-mountain-bike-caloi-velox-freio-v-brake-21-marchas/magazineluiza/224968700/f8e8eac41c5d1b42ccac9cc345008608.jpg"
-              }
+      {isLoading ? (
+        <Loading />
+      ) : (
+        <ScrollView>
+          <HStack
+            px={6}
+            flexWrap={"wrap"}
+            justifyContent="space-between"
+            mt="6"
+          >
+            <FlatList
+              data={productsUsers}
+              //keyExtractor={(item) => item.id}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                //onPress={() => handleNavigationAdDetails(item.id)}
+                >
+                  <Ad
+                    userAvatar="https://github.com/mateusrc-dev.png"
+                    nameAd="pudim de ovo"
+                    price="100"
+                    type="new"
+                    imagePath={
+                      "https://a-static.mlcdn.com.br/800x560/bicicleta-aro-29-mountain-bike-caloi-velox-freio-v-brake-21-marchas/magazineluiza/224968700/f8e8eac41c5d1b42ccac9cc345008608.jpg"
+                    }
+                  />
+                </TouchableOpacity>
+              )}
+              horizontal
             />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={handleNavigationAdDetails}>
-            <Ad
-              userAvatar="https://github.com/mateusrc-dev.png"
-              nameAd="pudim de ovo"
-              price="100"
-              type="new"
-              imagePath={
-                "https://a-static.mlcdn.com.br/800x560/bicicleta-aro-29-mountain-bike-caloi-velox-freio-v-brake-21-marchas/magazineluiza/224968700/f8e8eac41c5d1b42ccac9cc345008608.jpg"
-              }
-            />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={handleNavigationAdDetails}>
-            <Ad
-              userAvatar="https://github.com/mateusrc-dev.png"
-              nameAd="pudim de ovo"
-              price="100"
-              type="new"
-              imagePath={
-                "https://a-static.mlcdn.com.br/800x560/bicicleta-aro-29-mountain-bike-caloi-velox-freio-v-brake-21-marchas/magazineluiza/224968700/f8e8eac41c5d1b42ccac9cc345008608.jpg"
-              }
-            />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={handleNavigationAdDetails}>
-            <Ad
-              userAvatar="https://github.com/mateusrc-dev.png"
-              nameAd="pudim de ovo"
-              price="100"
-              type="new"
-              imagePath={
-                "https://a-static.mlcdn.com.br/800x560/bicicleta-aro-29-mountain-bike-caloi-velox-freio-v-brake-21-marchas/magazineluiza/224968700/f8e8eac41c5d1b42ccac9cc345008608.jpg"
-              }
-            />
-          </TouchableOpacity>
-        </HStack>
-      </ScrollView>
+          </HStack>
+        </ScrollView>
+      )}
 
       <Actionsheet
         isOpen={isOpen}
@@ -214,7 +242,7 @@ export function Home() {
             <HStack space="2">
               <TouchableOpacity onPress={handleConditionNew}>
                 <HStack
-                  bgColor={conditionState === "new" ? "blue.200" : "gray.500"}
+                  bgColor={conditionState === true ? "blue.200" : "gray.500"}
                   py="1.5"
                   px="4"
                   rounded="full"
@@ -222,21 +250,21 @@ export function Home() {
                   space="1.5"
                 >
                   <Text
-                    color={conditionState === "new" ? "#FFFFFF" : "gray.300"}
+                    color={conditionState === false ? "#FFFFFF" : "gray.300"}
                     fontSize="xs"
                     fontFamily="body"
                     fontWeight="bold"
                   >
                     NOVO
                   </Text>
-                  {conditionState === "new" && (
+                  {conditionState === true && (
                     <XCircle size={16} weight="fill" color="#EDECEE" />
                   )}
                 </HStack>
               </TouchableOpacity>
               <TouchableOpacity onPress={handleConditionUsed}>
                 <HStack
-                  bgColor={conditionState === "used" ? "blue.200" : "gray.500"}
+                  bgColor={conditionState === false ? "blue.200" : "gray.500"}
                   py="1.5"
                   px="4"
                   rounded="full"
@@ -244,14 +272,14 @@ export function Home() {
                   space="1.5"
                 >
                   <Text
-                    color={conditionState === "used" ? "#FFFFFF" : "gray.300"}
+                    color={conditionState === false ? "#FFFFFF" : "gray.300"}
                     fontSize="xs"
                     fontFamily="body"
                     fontWeight="bold"
                   >
                     USADO
                   </Text>
-                  {conditionState === "used" && (
+                  {conditionState === false && (
                     <XCircle size={16} weight="fill" color="#EDECEE" />
                   )}
                 </HStack>

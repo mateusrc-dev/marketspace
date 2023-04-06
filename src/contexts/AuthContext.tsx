@@ -2,6 +2,7 @@ import { UserDTO } from "@dtos/UserDTO";
 import { api } from "@services/api";
 import {
   storageAuthTokenGet,
+  storageAuthTokenRemove,
   storageAuthTokenSave,
 } from "@storage/storageAuthToken";
 import {
@@ -31,7 +32,7 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
   const [isLoadingUserStorageData, setIsLoadingUserStorageData] =
     useState(true);
 
-  async function userAndTokenUpdate(userData: UserDTO, token: string) {
+  function userAndTokenUpdate(userData: UserDTO, token: string) {
     api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
     setUser(userData);
@@ -70,6 +71,7 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
       // setIsLoadingUserStorageData(true);
       setUser({} as UserDTO);
       await storageUserRemove();
+      await storageAuthTokenRemove();
     } catch (error) {
       throw error;
       //} finally {

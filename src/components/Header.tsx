@@ -4,6 +4,7 @@ import { ButtonComponent } from "./Button";
 import { useNavigation } from "@react-navigation/native";
 import { AppNavigatorRoutesPropsTwo } from "@routes/app.routes";
 import { useAuth } from "@hooks/useAuth";
+import { api } from "@services/api";
 
 type HeaderProps = {
   type?: "homeHeader" | "Olá";
@@ -11,10 +12,10 @@ type HeaderProps = {
 
 export function Header({ type = "homeHeader" }: HeaderProps) {
   const navigation = useNavigation<AppNavigatorRoutesPropsTwo>();
-  const { user } = useAuth()
+  const { user } = useAuth();
 
   function handleNavigationCreateAd() {
-    navigation.navigate("createAd")
+    navigation.navigate("createAd");
   }
 
   if (type === "homeHeader") {
@@ -22,7 +23,7 @@ export function Header({ type = "homeHeader" }: HeaderProps) {
       <HStack alignItems="center" px={6} pt={9} justifyContent="space-between">
         <HStack alignItems="center" space="2.5">
           <Image
-            source={{ uri: user.avatar }}
+            source={{ uri: `${api.defaults.baseURL}/images/${user.avatar}` }}
             alt="imagem do usuário"
             rounded="full"
             resizeMode="contain"
@@ -45,7 +46,11 @@ export function Header({ type = "homeHeader" }: HeaderProps) {
             </Text>
           </VStack>
         </HStack>
-        <ButtonComponent title="Criar anúncio" variant="black" onPress={handleNavigationCreateAd}>
+        <ButtonComponent
+          title="Criar anúncio"
+          variant="black"
+          onPress={handleNavigationCreateAd}
+        >
           <Plus weight="regular" color="#EDECEE" size={16} />
         </ButtonComponent>
       </HStack>

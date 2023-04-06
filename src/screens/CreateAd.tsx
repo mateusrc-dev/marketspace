@@ -32,21 +32,30 @@ import { ScrollView } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
+import axios from "axios";
+import { api } from "@services/api";
+import { AppNavigatorRoutesPropsTwo } from "@routes/app.routes";
 const { width } = Dimensions.get("window");
+import { Alert } from "react-native";
+import { useAuth } from "@hooks/useAuth";
 
 export function CreateAd() {
   const [photoIsLoading, setPhotoIsLoading] = useState<boolean>(false);
   const [productImage, setProductImage] = useState<string[]>([]);
+  const [userImageType, setUserImageType] = useState<string[]>([]);
   const [value, setValue] = useState("");
-  const [groupValues, setGroupValues] = useState<string[] | undefined>();
+  const [groupValues, setGroupValues] = useState<string[]>([]);
   const [switchValue, setSwitchValue] = useState<boolean>(false);
   const [changePage, setChangePage] = useState<boolean>(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [price, setPrice] = useState<string>("");
-  const navigation = useNavigation();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
   const toast = useToast();
+  const navigation = useNavigation<AppNavigatorRoutesPropsTwo>();
+  const { user } = useAuth();
 
   function handleSwitchValue() {
     setSwitchValue((prevState) => !prevState);
@@ -80,6 +89,8 @@ export function CreateAd() {
           });
         }
         setProductImage((prevState) => [...prevState, assets[0].uri]);
+        const typeImage: string = assets[0].type ? assets[0].type : "";
+        setUserImageType((prevState) => [...prevState, typeImage]);
       }
     } catch (error) {
       console.log(error);
@@ -100,6 +111,95 @@ export function CreateAd() {
       setChangePage(true);
     } else {
       setChangePage(false);
+    }
+  }
+
+  async function createNewProduct() {
+    if (
+      title.length === 0 &&
+      description.length === 0 &&
+      productImage.length === 0 &&
+      value.length === 0 &&
+      groupValues.length === 0
+    ) {
+      Alert.alert(
+        "Você não preencheu todos os campos, garanta que todos estejam preenchidos e escolha pelo menos uma imagem!"
+      );
+      return;
+    }
+    try {
+      setIsLoading(true);
+      const is_new = value === "used" ? true : false;
+      const Price = Number(price);
+      const response = await api.post("/products", {
+        name: title,
+        description,
+        is_new,
+        accept_trade: switchValue,
+        payment_methods: groupValues,
+        price: Price,
+      });
+
+      let photoFile1;
+      let photoFile2;
+      let photoFile3;
+      if (productImage[0]) {
+        const fileExtension = productImage[0].split(".").pop(); // for get the extension of image
+        photoFile1 = {
+          // we let's defined information to image need have for do upload
+          name: `${user.name}.${fileExtension}`
+            .toLowerCase()
+            .replaceAll(" ", ""),
+          uri: productImage[0], // uri say the locale of image in device of user
+          type: `${userImageType[0]}/${fileExtension}`,
+        } as any;
+      }
+
+      if (productImage[1]) {
+        const fileExtension = productImage[1].split(".").pop(); // for get the extension of image
+        photoFile2 = {
+          // we let's defined information to image need have for do upload
+          name: `${user.name}.${fileExtension}`
+            .toLowerCase()
+            .replaceAll(" ", ""),
+          uri: productImage[1], // uri say the locale of image in device of user
+          type: `${userImageType[1]}/${fileExtension}`,
+        } as any;
+      }
+
+      if (productImage[2]) {
+        const fileExtension = productImage[2].split(".").pop(); // for get the extension of image
+        photoFile3 = {
+          // we let's defined information to image need have for do upload
+          name: `${user.name}.${fileExtension}`
+            .toLowerCase()
+            .replaceAll(" ", ""),
+          uri: productImage[2], // uri say the locale of image in device of user
+          type: `${userImageType[2]}/${fileExtension}`,
+        } as any;
+      }
+
+      const productImagesUploadForm = new FormData();
+      productImagesUploadForm.append("product_id", response.data.id);
+      productImage[0] && productImagesUploadForm.append("images", photoFile1);
+      productImage[1] && productImagesUploadForm.append("images", photoFile2);
+      productImage[2] && productImagesUploadForm.append("images", photoFile3);
+
+      await api.post("/products/images", productImagesUploadForm, {
+        headers: { "Content-type": "multipart/form-data" },
+      });
+      Alert.alert("Novo produto criado com sucesso");
+      navigation.navigate("Home");
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        toast.show({
+          title: error.response?.data.message,
+          placement: "top",
+          bgColor: "red.100",
+        });
+      }
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -612,7 +712,8 @@ export function CreateAd() {
             <ButtonComponent
               title="Publicar"
               variant="blue"
-              onPress={onChangePageVisualization}
+              onPress={createNewProduct}
+              isLoading={isLoading}
             >
               <Tag color="#EDECEE" size="16" />
             </ButtonComponent>
