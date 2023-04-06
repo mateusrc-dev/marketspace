@@ -662,7 +662,7 @@ export function CreateAd() {
               )}
               {groupValues?.map(
                 (item) =>
-                  item === "dinheiro" && (
+                  item === "cash" && (
                     <HStack mx="6" alignItems="center" space="2">
                       <Money size={18} color="#1A181B" />
                       <Text color="gray.200" fontSize="sm" fontFamily="body">
@@ -673,7 +673,7 @@ export function CreateAd() {
               )}
               {groupValues?.map(
                 (item) =>
-                  item === "cartão de crédito" && (
+                  item === "card" && (
                     <HStack mx="6" alignItems="center" space="2">
                       <CreditCard size={18} color="#1A181B" />
                       <Text color="gray.200" fontSize="sm" fontFamily="body">
@@ -684,7 +684,7 @@ export function CreateAd() {
               )}
               {groupValues?.map(
                 (item) =>
-                  item === "depósito bancário" && (
+                  item === "deposit" && (
                     <HStack mx="6" alignItems="center" space="2">
                       <Bank size={18} color="#1A181B" />
                       <Text color="gray.200" fontSize="sm" fontFamily="body">

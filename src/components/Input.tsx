@@ -13,6 +13,7 @@ type PropsInput = IInputProps & {
   secure?: boolean;
   search?: boolean;
   handleStateFilter?: () => void;
+  handleSearch?: () => void;
   purchase?: boolean;
   errorMessage?: string | null;
 };
@@ -21,6 +22,7 @@ export function Input({
   secure = false,
   search = false,
   purchase = false,
+  handleSearch = () => {},
   handleStateFilter = () => {},
   isInvalid,
   errorMessage = null,
@@ -90,7 +92,6 @@ export function Input({
             placeholderTextColor="gray.400"
             fontFamily="body"
             rounded={6}
-            secureTextEntry={state}
             position="relative"
             isInvalid={invalid}
             _invalid={{
@@ -104,8 +105,12 @@ export function Input({
             }}
             {...rest}
           />
-          <HStack position="absolute" right={0}>
-            <Button bgColor="transparent" _pressed={{ bg: "gray.400" }}>
+          <HStack position="absolute" right={0.485} top={0.485}>
+            <Button
+              bgColor="transparent"
+              _pressed={{ bg: "gray.400" }}
+              onPress={handleSearch}
+            >
               <MagnifyingGlass color={"#1A181B"} />
             </Button>
             <View

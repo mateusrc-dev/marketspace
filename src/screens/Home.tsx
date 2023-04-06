@@ -31,7 +31,7 @@ import { ProductsDTO } from "@dtos/ProductsDTO";
 export function Home() {
   const [conditionState, setConditionState] = useState<
     true | false | undefined
-  >(false);
+  >();
   const [groupValues, setGroupValues] = useState<string[]>([
     "pix",
     "boleto",
@@ -46,7 +46,9 @@ export function Home() {
   const navigation = useNavigation<AppNavigatorRoutesProps>();
   const navigationApp = useNavigation<AppNavigatorRoutesPropsTwo>();
   const toast = useToast();
-  console.log(productsUsers);
+  console.log(switchValue);
+  console.log(groupValues);
+  console.log(conditionState);
 
   const { isOpen, onClose, onOpen } = useDisclose();
 
@@ -70,18 +72,67 @@ export function Home() {
     }
   }
 
-  function handleSwitchValue() {
-    setSwitchValue((prevState) => !prevState);
-  }
-
   function handleNavigationAdDetails(id: string) {
     navigationApp.navigate("adDetails", { id });
   }
 
-  async function useFilterInFetch() {}
+  async function useSearchInFetch() {
+    try {
+      setIsLoading(true);
+      const response = await api.get("/products", {
+        params: {
+          query
+        },
+      });
+      setProductsUsers(response.data);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        toast.show({
+          title: error.response?.data.message,
+          placement: "top",
+          bgColor: "red.100",
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function useFilterInFetch() {
+    try {
+      onClose();
+      setIsLoading(true);
+      const response = await api.get("/products", {
+        params: {
+          is_new: conditionState,
+          accept_trade: switchValue,
+          payment_methods: groupValues,
+        },
+      });
+      setProductsUsers(response.data);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        toast.show({
+          title: error.response?.data.message,
+          placement: "top",
+          bgColor: "red.100",
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  function resetFilters() {
+    setConditionState(undefined);
+    setGroupValues(["pix", "boleto", "cash", "card", "deposit"]);
+    setSwitchValue(false);
+  }
 
   async function fetchProducts() {
     try {
+      onClose();
+      resetFilters();
       setIsLoading(true);
       const response = await api.get(`/products`);
       setProductsUsers(response.data);
@@ -100,7 +151,7 @@ export function Home() {
 
   useEffect(() => {
     fetchProducts();
-  }, [switchValue, groupValues, query, conditionState]);
+  }, []);
 
   return (
     <VStack flex={1} bgColor="gray.600">
@@ -173,6 +224,7 @@ export function Home() {
           placeholder="Buscar anúncio"
           search={true}
           handleStateFilter={onOpen}
+          handleSearch={useSearchInFetch}
           onChangeText={(e) => setQuery(e)}
           value={query}
         />
@@ -296,8 +348,8 @@ export function Home() {
               height={"8"}
               width={"10"}
               size="lg"
-              value={switchValue}
-              onValueChange={handleSwitchValue}
+              isChecked={switchValue}
+              onValueChange={(value) => setSwitchValue(value)}
               trackColor={{ false: "#D9D8DA", true: "#647AC7" }}
               thumbColor={switchValue ? "#F7F7F8" : "#F7F7F8"}
               ios_backgroundColor="#3e3e3e"
@@ -340,7 +392,7 @@ export function Home() {
               </HStack>
               <HStack mb={1} space={2}>
                 <Checkbox
-                  value="dinheiro"
+                  value="cash"
                   accessibilityLabel="dinheiro"
                   colorScheme="info"
                 />
@@ -350,7 +402,7 @@ export function Home() {
               </HStack>
               <HStack mb={1} space={2}>
                 <Checkbox
-                  value="cartão de crédito"
+                  value="card"
                   accessibilityLabel="cartão de crédito"
                   colorScheme="info"
                 />
@@ -360,7 +412,7 @@ export function Home() {
               </HStack>
               <HStack mb={1} space={2}>
                 <Checkbox
-                  value="depósito bancário"
+                  value="deposit"
                   accessibilityLabel="depósito bancário"
                   colorScheme="info"
                 />
@@ -370,8 +422,16 @@ export function Home() {
               </HStack>
             </Checkbox.Group>
             <HStack justifyContent="space-between">
-              <ButtonComponent title="Resetar filtros" variant="light" />
-              <ButtonComponent title="Aplicar filtros" variant="black" />
+              <ButtonComponent
+                title="Resetar filtros"
+                variant="light"
+                onPress={fetchProducts}
+              />
+              <ButtonComponent
+                title="Aplicar filtros"
+                variant="black"
+                onPress={useFilterInFetch}
+              />
             </HStack>
           </VStack>
         </Actionsheet.Content>
