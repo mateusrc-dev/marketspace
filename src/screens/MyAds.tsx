@@ -133,7 +133,7 @@ export function MyAds() {
                   nameAd={item.name}
                   price={item.price}
                   type={item.is_new === true ? "new" : "used"}
-                  imagePath={item.product_images[0].path}
+                  imagePath={""}
                 />
               ) : null}
             </TouchableOpacity>

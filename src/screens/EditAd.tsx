@@ -23,7 +23,7 @@ import {
   Tag,
   X,
 } from "phosphor-react-native";
-import { Dimensions, TouchableOpacity } from "react-native";
+import { Dimensions, TouchableOpacity, Alert } from "react-native";
 import { useState, useEffect } from "react";
 import { Input } from "@components/Input";
 import { TextArea } from "@components/TextArea";
@@ -34,6 +34,8 @@ import * as ImagePicker from "expo-image-picker";
 import { api } from "@services/api";
 import axios from "axios";
 import { Loading } from "@components/Loading";
+import { AppNavigatorRoutesProps } from "@routes/app.routes";
+import * as FileSystem from "expo-file-system";
 
 type RoutesParamsProps = {
   id: string;
@@ -41,6 +43,11 @@ type RoutesParamsProps = {
 
 export function EditAd() {
   const [productImageApi, setProductImageApi] = useState<
+    { id: string; path: string }[]
+  >([]);
+  const [productImage, setProductImage] = useState<string[]>([]);
+  const [productImageSend, setProductImageSend] = useState<string[]>([]);
+  const [productImagesIds, setProductImageId] = useState<
     { id: string; path: string }[]
   >([]);
   const [groupValuesApi, setGroupValuesApi] = useState<
@@ -53,21 +60,17 @@ export function EditAd() {
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [price, setPrice] = useState<string>("");
-  const [productImage, setProductImage] = useState<string[]>([]);
   const [value, setValue] = useState<string | undefined>(undefined);
   const [groupValues, setGroupValues] = useState<string[]>([]);
   const [switchValue, setSwitchValue] = useState<boolean>(false);
   const [changePage, setChangePage] = useState<boolean>(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const { width } = Dimensions.get("window");
-  const navigation = useNavigation();
   const route = useRoute();
+  const navigation = useNavigation<AppNavigatorRoutesProps>();
   const toast = useToast();
   const { id } = route.params as RoutesParamsProps;
-
-  function handleSwitchValue() {
-    setSwitchValue((prevState) => !prevState);
-  }
+  console.log(productImage);
 
   function handleGoBack() {
     navigation.goBack();
@@ -88,7 +91,16 @@ export function EditAd() {
       }
 
       if (assets[0].uri) {
+        const { size }: any = await FileSystem.getInfoAsync(assets[0].uri);
+        if (size && size / 1024 / 1024 > 5) {
+          return toast.show({
+            title: "Essa imagem é muito grande. Escolha uma imagem de até 5MB",
+            placement: "top",
+            bgColor: "red.100",
+          });
+        }
         setProductImage((prevState) => [...prevState, assets[0].uri]);
+        setProductImageSend((prevState) => [...prevState, assets[0].uri]);
       }
     } catch (error) {
       console.log(error);
@@ -98,17 +110,144 @@ export function EditAd() {
   }
 
   function handleDeleteProductImage(productDelete: string) {
-    const productsWithoutProductDeleted = productImage.filter(
+    const productsSendWithoutProductDeleted = productImageSend.filter(
       (product) => product !== productDelete
     );
+    const productsWithoutProductDeleted: string[] = productImage.filter(
+      (product) => product !== productDelete
+    );
+    const productsIdDeleted = productImageApi.filter(
+      (product) => product.path === productDelete
+    );
     setProductImage(productsWithoutProductDeleted);
+    setProductImageSend(productsSendWithoutProductDeleted);
+    setProductImageId(productsIdDeleted);
   }
 
-  function onChangePageVisualization() {
+  async function onChangePageVisualization() {
     if (changePage === false) {
       setChangePage(true);
     } else {
       setChangePage(false);
+    }
+  }
+
+  async function deleteImages() {
+    let imagesId = [];
+    for (let i = 0; productImagesIds.length > i; i += 1) {
+      imagesId.push(productImagesIds[i].id);
+    }
+    if (productImagesIds.length !== 0) {
+      await api.delete("/products/images", {
+        data: { productImagesIds: imagesId },
+      });
+      console.log("imagens deletadas!");
+    }
+  }
+
+  async function addNewImages() {
+    try {
+      let photo1;
+      let photo2;
+      let photo3;
+      if (productImageSend[0]) {
+        const fileExtension = productImageSend[0].split(".").pop(); // for get the extension of image
+        photo1 = {
+          // we let's defined information to image need have for do upload
+          name: `${userName}.${fileExtension}`
+            .toLowerCase()
+            .replaceAll(" ", ""),
+          uri: productImageSend[0], // uri say the locale of image in device of user
+          type: `image/${fileExtension}`,
+        } as any;
+      }
+
+      if (productImageSend[1]) {
+        const fileExtension = productImageSend[1].split(".").pop(); // for get the extension of image
+        photo2 = {
+          // we let's defined information to image need have for do upload
+          name: `${userName}.${fileExtension}`
+            .toLowerCase()
+            .replaceAll(" ", ""),
+          uri: productImageSend[1], // uri say the locale of image in device of user
+          type: `image/${fileExtension}`,
+        } as any;
+      }
+
+      if (productImageSend[2]) {
+        const fileExtension = productImageSend[2].split(".").pop(); // for get the extension of image
+        photo3 = {
+          // we let's defined information to image need have for do upload
+          name: `${userName}.${fileExtension}`
+            .toLowerCase()
+            .replaceAll(" ", ""),
+          uri: productImageSend[2], // uri say the locale of image in device of user
+          type: `image/${fileExtension}`,
+        } as any;
+      }
+
+      const productImagesUploadForm = new FormData();
+      productImagesUploadForm.append("product_id", id);
+      productImageSend[0] && productImagesUploadForm.append("images", photo1);
+      productImageSend[1] && productImagesUploadForm.append("images", photo2);
+      productImageSend[2] && productImagesUploadForm.append("images", photo3);
+      console.log("cheguei aqui");
+      await api.post("/products/images", productImagesUploadForm, {
+        headers: { "Content-type": "multipart/form-data" },
+      });
+      console.log("imagens adicionadas");
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        toast.show({
+          title: error.response?.data.message,
+          placement: "top",
+          bgColor: "red.100",
+        });
+      }
+    }
+  }
+
+  async function handleUpdateAd() {
+    if (
+      title.length === 0 &&
+      description.length === 0 &&
+      productImageApi.length === 0 &&
+      value?.length === 0 &&
+      groupValues.length === 0
+    ) {
+      Alert.alert(
+        "Você não preencheu todos os campos, garanta que todos estejam preenchidos e escolha pelo menos uma imagem!"
+      );
+      return;
+    }
+    try {
+      await deleteImages();
+      setIsLoading(true);
+      const is_new = value === "used" ? true : false;
+      const Price = Number(price);
+      await api.put(`/products/${id}`, {
+        name: title,
+        description,
+        is_new,
+        accept_trade: switchValue,
+        payment_methods: groupValues,
+        price: Price,
+      });
+
+      await addNewImages();
+
+      Alert.alert("Produto atualizado com sucesso");
+      navigation.navigate("myAds");
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        toast.show({
+          title: error.response?.data.message,
+          placement: "top",
+          bgColor: "red.100",
+        });
+      }
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -143,15 +282,6 @@ export function EditAd() {
   }, []);
 
   useEffect(() => {
-    function handleImageProduct() {
-      for (let i = 0; productImageApi.length > i; i += 1) {
-        setProductImage((prevState) => [...prevState, productImageApi[i].path]);
-      }
-    }
-    handleImageProduct();
-  }, [productImageApi]);
-
-  useEffect(() => {
     function handleGroupsProduct() {
       let methods = [];
       for (let i = 0; groupValuesApi.length > i; i += 1) {
@@ -161,6 +291,17 @@ export function EditAd() {
     }
     handleGroupsProduct();
   }, [groupValuesApi]);
+
+  useEffect(() => {
+    function handleImagesProduct() {
+      let images = [];
+      for (let i = 0; productImageApi.length > i; i += 1) {
+        images.push(productImageApi[i].path);
+      }
+      setProductImage(images);
+    }
+    handleImagesProduct();
+  }, [productImageApi]);
 
   return (
     <>
@@ -234,9 +375,13 @@ export function EditAd() {
                     renderItem={({ item }) => (
                       <View position="relative">
                         <Image
-                          source={{
-                            uri: `${api.defaults.baseURL}/images/${item}`,
-                          }}
+                          source={
+                            item.includes("/ImagePicker/")
+                              ? { uri: item }
+                              : {
+                                  uri: `${api.defaults.baseURL}/images/${item}`,
+                                }
+                          }
                           alt="imagem do produto"
                           w="100"
                           h="100"
@@ -469,7 +614,13 @@ export function EditAd() {
               renderItem={({ item }) => (
                 <Image
                   alt="imagem do item"
-                  source={{ uri: `${api.defaults.baseURL}/images/${item}` }}
+                  source={
+                    item.includes("/ImagePicker/")
+                      ? { uri: item }
+                      : {
+                          uri: `${api.defaults.baseURL}/images/${item}`,
+                        }
+                  }
                   width={width}
                   height="280"
                   resizeMode="cover"
@@ -510,7 +661,9 @@ export function EditAd() {
             <VStack>
               <HStack alignItems="center" space={"2"} mt="5" mx="6">
                 <Image
-                  source={{ uri: `${api.defaults.baseURL}/images/${userAvatar}` }}
+                  source={{
+                    uri: `${api.defaults.baseURL}/images/${userAvatar}`,
+                  }}
                   alt="avatar do usuário"
                   rounded="full"
                   borderWidth="2"
@@ -673,9 +826,10 @@ export function EditAd() {
               <ArrowLeft color="#3E3A40" size="16" />
             </ButtonComponent>
             <ButtonComponent
-              title="Publicar"
+              title="Atualizar"
               variant="blue"
-              onPress={onChangePageVisualization}
+              onPress={handleUpdateAd}
+              isLoading={isLoading}
             >
               <Tag color="#EDECEE" size="16" />
             </ButtonComponent>
