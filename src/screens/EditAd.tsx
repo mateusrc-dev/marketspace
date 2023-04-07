@@ -73,7 +73,6 @@ export function EditAd() {
   const navigation = useNavigation<AppNavigatorRoutesProps>();
   const toast = useToast();
   const { id } = route.params as RoutesParamsProps;
-  console.log(productImage);
 
   function handleGoBack() {
     navigation.goBack();
@@ -121,7 +120,6 @@ export function EditAd() {
     );
     const productsIdDeleted: { id: string; path: string }[] =
       productImageApi.filter((product) => product.path === productDelete);
-    console.log(productsIdDeleted);
     setProductImage(productsWithoutProductDeleted);
     setProductImageSend(productsSendWithoutProductDeleted);
     if (productsIdDeleted.length !== 0) {
@@ -146,7 +144,6 @@ export function EditAd() {
       await api.delete("/products/images", {
         data: { productImagesIds: imagesId },
       });
-      console.log("imagens deletadas!");
     }
   }
 
@@ -196,11 +193,9 @@ export function EditAd() {
       productImageSend[0] && productImagesUploadForm.append("images", photo1);
       productImageSend[1] && productImagesUploadForm.append("images", photo2);
       productImageSend[2] && productImagesUploadForm.append("images", photo3);
-      console.log("cheguei aqui");
       await api.post("/products/images", productImagesUploadForm, {
         headers: { "Content-type": "multipart/form-data" },
       });
-      console.log("imagens adicionadas");
     } catch (error) {
       if (axios.isAxiosError(error)) {
         toast.show({
@@ -214,14 +209,15 @@ export function EditAd() {
 
   async function handleUpdateAd() {
     if (
-      title.length === 0 &&
-      description.length === 0 &&
-      productImageApi.length === 0 &&
-      value?.length === 0 &&
+      title.length === 0 ||
+      description.length === 0 ||
+      productImage.length === 0 ||
+      value?.length === 0 ||
       groupValues.length === 0
     ) {
       Alert.alert(
-        "Você não preencheu todos os campos, garanta que todos estejam preenchidos e escolha pelo menos uma imagem!"
+        "Houve algum erro",
+        "Talvez você não preencheu todos os campos, garanta que todos estejam preenchidos e escolha pelo menos uma imagem para enviar na atualização do produto!"
       );
       return;
     }

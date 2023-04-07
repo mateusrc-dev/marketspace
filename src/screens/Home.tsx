@@ -201,7 +201,7 @@ export function Home() {
               fontSize="lg"
               fontFamily="body"
             >
-              {productsUser.length}
+              {isLoading ? <Loading /> : productsUser.length}
             </Text>
             <Text
               color="gray.200"
@@ -257,6 +257,20 @@ export function Home() {
           px={6}
           mt={6}
           showsVerticalScrollIndicator={false}
+          contentContainerStyle={
+            productsUsers.length === 0 && { flex: 1, justifyContent: "center" }
+          }
+          ListEmptyComponent={() => (
+            <Text
+              color="blue.200"
+              fontSize="lg"
+              fontWeight="bold"
+              fontFamily="body"
+              textAlign="center"
+            >
+              Não foi encontrado nenhum produto!
+            </Text>
+          )}
           columnWrapperStyle={{ justifyContent: "space-between" }}
           renderItem={({ item }) => (
             <TouchableOpacity

@@ -121,6 +121,20 @@ export function MyAds() {
           mt={6}
           showsVerticalScrollIndicator={false}
           columnWrapperStyle={{ justifyContent: "space-between" }}
+          contentContainerStyle={
+            productsUser.length === 0 && { flex: 1, justifyContent: "center" }
+          }
+          ListEmptyComponent={() => (
+            <Text
+              color="blue.200"
+              fontSize="lg"
+              fontWeight="bold"
+              fontFamily="body"
+              textAlign="center"
+            >
+              Você ainda não criou produtos, crie um novo produto e anuncie ele!
+            </Text>
+          )}
           renderItem={({ item }) => (
             <TouchableOpacity
               onPress={() => handleNavigationMyAdDetails(item.id)}

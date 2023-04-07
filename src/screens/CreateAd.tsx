@@ -117,10 +117,10 @@ export function CreateAd() {
 
   async function createNewProduct() {
     if (
-      title.length === 0 &&
-      description.length === 0 &&
-      productImage.length === 0 &&
-      value.length === 0 &&
+      title.length === 0 ||
+      description.length === 0 ||
+      productImage.length === 0 ||
+      value.length === 0 ||
       groupValues.length === 0
     ) {
       Alert.alert(
