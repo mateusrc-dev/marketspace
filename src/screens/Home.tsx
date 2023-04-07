@@ -2,7 +2,6 @@ import {
   Actionsheet,
   Checkbox,
   HStack,
-  ScrollView,
   Text,
   useDisclose,
   View,
@@ -14,14 +13,14 @@ import {
 import { Header } from "@components/Header";
 import { ArrowRight, Tag, X, XCircle } from "phosphor-react-native";
 import { TouchableOpacity } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import {
   AppNavigatorRoutesProps,
   AppNavigatorRoutesPropsTwo,
 } from "@routes/app.routes";
 import { Input } from "@components/Input";
 import { Ad } from "@components/Ad";
-import { useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { ButtonComponent } from "@components/Button";
 import axios from "axios";
 import { api } from "@services/api";
@@ -41,6 +40,7 @@ export function Home() {
   ]);
   const [switchValue, setSwitchValue] = useState<boolean>(false);
   const [productsUsers, setProductsUsers] = useState<ProductsDTO[]>([]);
+  const [productsUser, setProductsUser] = useState<ProductsDTO[]>([]);
   const [query, setQuery] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const navigation = useNavigation<AppNavigatorRoutesProps>();
@@ -78,7 +78,7 @@ export function Home() {
       setIsLoading(true);
       const response = await api.get("/products", {
         params: {
-          query
+          query,
         },
       });
       setProductsUsers(response.data);
@@ -126,6 +126,24 @@ export function Home() {
     setSwitchValue(false);
   }
 
+  async function fetchUserProducts() {
+    try {
+      setIsLoading(true);
+      const response = await api.get("/users/products");
+      setProductsUser(response.data);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        toast.show({
+          title: error.response?.data.message,
+          placement: "top",
+          bgColor: "red.100",
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   async function fetchProducts() {
     try {
       onClose();
@@ -146,9 +164,12 @@ export function Home() {
     }
   }
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      fetchProducts();
+      fetchUserProducts();
+    }, [])
+  );
 
   return (
     <VStack flex={1} bgColor="gray.600">
@@ -180,7 +201,7 @@ export function Home() {
               fontSize="lg"
               fontFamily="body"
             >
-              4
+              {productsUser.length}
             </Text>
             <Text
               color="gray.200"
@@ -246,7 +267,7 @@ export function Home() {
                 nameAd={item.name}
                 price={item.price}
                 type={item.is_new === true ? "new" : "used"}
-                imagePath={""} // --->>>>> ATENÇÃO, DEPOIS COLOCAR O CONTEÚDO CORRETO <<<----- *****
+                imagePath={item.product_images[0].path}
               />
             </TouchableOpacity>
           )}

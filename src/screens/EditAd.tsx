@@ -34,7 +34,10 @@ import * as ImagePicker from "expo-image-picker";
 import { api } from "@services/api";
 import axios from "axios";
 import { Loading } from "@components/Loading";
-import { AppNavigatorRoutesProps } from "@routes/app.routes";
+import {
+  AppNavigatorRoutesProps,
+  AppNavigatorRoutesPropsTwo,
+} from "@routes/app.routes";
 import * as FileSystem from "expo-file-system";
 
 type RoutesParamsProps = {
@@ -116,12 +119,14 @@ export function EditAd() {
     const productsWithoutProductDeleted: string[] = productImage.filter(
       (product) => product !== productDelete
     );
-    const productsIdDeleted = productImageApi.filter(
-      (product) => product.path === productDelete
-    );
+    const productsIdDeleted: { id: string; path: string }[] =
+      productImageApi.filter((product) => product.path === productDelete);
+    console.log(productsIdDeleted);
     setProductImage(productsWithoutProductDeleted);
     setProductImageSend(productsSendWithoutProductDeleted);
-    setProductImageId(productsIdDeleted);
+    if (productsIdDeleted.length !== 0) {
+      setProductImageId((prevState) => [...prevState, productsIdDeleted[0]]);
+    }
   }
 
   async function onChangePageVisualization() {
@@ -221,8 +226,8 @@ export function EditAd() {
       return;
     }
     try {
-      await deleteImages();
       setIsLoading(true);
+      await deleteImages();
       const is_new = value === "used" ? true : false;
       const Price = Number(price);
       await api.put(`/products/${id}`, {
@@ -234,7 +239,9 @@ export function EditAd() {
         price: Price,
       });
 
-      await addNewImages();
+      if (productImageSend.length !== 0) {
+        await addNewImages();
+      }
 
       Alert.alert("Produto atualizado com sucesso");
       navigation.navigate("myAds");
@@ -575,7 +582,11 @@ export function EditAd() {
                   bgColor="gray.700"
                   mt="8"
                 >
-                  <ButtonComponent title="Cancelar" variant="light" />
+                  <ButtonComponent
+                    title="Cancelar"
+                    variant="light"
+                    onPress={handleGoBack}
+                  />
                   <ButtonComponent
                     title="Avançar"
                     variant="black"

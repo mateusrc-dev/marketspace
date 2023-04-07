@@ -1,7 +1,11 @@
 import { ButtonComponent } from "@components/Button";
 import { Loading } from "@components/Loading";
 import { ProductDTO } from "@dtos/ProductDTO";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import {
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+} from "@react-navigation/native";
 import {
   AppNavigatorRoutesProps,
   AppNavigatorRoutesPropsTwo,
@@ -25,13 +29,12 @@ import {
   CreditCard,
   Money,
   PencilSimpleLine,
-  Plus,
   Power,
   QrCode,
   Trash,
 } from "phosphor-react-native";
-import { useState, useEffect } from "react";
-import { Dimensions, TouchableOpacity } from "react-native";
+import { useState, useCallback } from "react";
+import { Dimensions, TouchableOpacity, Alert } from "react-native";
 
 type RoutesParamsProps = {
   id: string;
@@ -58,6 +61,25 @@ export function MyAdDetails() {
 
   function handleNavigationEditAd() {
     navigationApp.navigate("editAd", { id });
+  }
+
+  async function handleDeleteAd() {
+    try {
+      setIsLoading(true);
+      await api.delete(`/products/${id}`);
+      Alert.alert("Anúncio deletado com sucesso!");
+      navigation.goBack();
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        toast.show({
+          title: error.response?.data.message,
+          placement: "top",
+          bgColor: "red.100",
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   async function handleChangeActiveAd() {
@@ -102,9 +124,11 @@ export function MyAdDetails() {
     }
   }
 
-  useEffect(() => {
-    fetchDetailsProductUser();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      fetchDetailsProductUser();
+    }, [])
+  );
 
   return (
     <VStack flex={1} bgColor="gray.600">
@@ -380,7 +404,11 @@ export function MyAdDetails() {
                 <Power size="16" color="#EDECEE" />
               </ButtonComponent>
             )}
-            <ButtonComponent title="Excluir anúncio" variant="light">
+            <ButtonComponent
+              title="Excluir anúncio"
+              variant="light"
+              onPress={handleDeleteAd}
+            >
               <Trash size="16" color="#5F5B62" />
             </ButtonComponent>
           </VStack>
