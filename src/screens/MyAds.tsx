@@ -76,7 +76,7 @@ export function MyAds() {
       </HStack>
       <HStack alignItems="center" px="6" justifyContent="space-between" mt="8">
         <Text color="gray.200" fontSize="sm" fontFamily="body">
-          {productsUser.length} anúncios
+          {isLoading ? <Loading /> : productsUser.length + " anúncios"}
         </Text>
         <View>
           <VStack alignItems="center" space={4}>
