@@ -195,22 +195,28 @@ export function Home() {
         <HStack alignItems="center" space={4}>
           <Tag size="22" weight="regular" color="#364D9D" />
           <VStack>
-            <Text
-              color="gray.200"
-              fontWeight="bold"
-              fontSize="lg"
-              fontFamily="body"
-            >
-              {isLoading ? <Loading /> : productsUser.length}
-            </Text>
-            <Text
-              color="gray.200"
-              fontWeight="regular"
-              fontSize="xs"
-              fontFamily="body"
-            >
-              anúncios ativos
-            </Text>
+            {isLoading ? (
+              <Loading />
+            ) : (
+              <>
+                <Text
+                  color="gray.200"
+                  fontWeight="bold"
+                  fontSize="lg"
+                  fontFamily="body"
+                >
+                  {productsUser.length}
+                </Text>
+                <Text
+                  color="gray.200"
+                  fontWeight="regular"
+                  fontSize="xs"
+                  fontFamily="body"
+                >
+                  anúncios ativos
+                </Text>
+              </>
+            )}
           </VStack>
         </HStack>
         <TouchableOpacity onPress={handleNavigationMyAds}>
